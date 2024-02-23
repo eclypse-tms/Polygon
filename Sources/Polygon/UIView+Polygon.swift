@@ -7,9 +7,10 @@
 
 import UIKit
 
-public protocol EquilateralPolygon {
+public protocol EquilateralPolygon: UIView {
     /// whether to show dashes around the circle that the initial
-    /// polygon is rendered before scaling and rotation.
+    /// polygon is rendered before scaling and rotation. used in the 
+    /// accompanying blog for demonstration purposes.
     var showDashes: Bool { get set }
     
     /// the color to fill the polygon with
@@ -28,7 +29,7 @@ public protocol EquilateralPolygon {
     var rotationAngle: CGFloat { get set }
 }
 
-extension EquilateralPolygon where Self: UIView {
+extension EquilateralPolygon {
     /// scales the shape to fit the bounding rectangle, if necessary
     public func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint) {
         // 1. calculate the scaling factor to touch all the edges

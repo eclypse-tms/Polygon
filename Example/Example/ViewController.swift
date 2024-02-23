@@ -162,11 +162,9 @@ class ViewController: UIViewController {
                 constraintPair.width.constant = idealWidthOfEachPolygon
                 polygon.setNeedsLayout()
             }
+            strongSelf.mainStackView?.setNeedsLayout()
         }, completion: { [weak self] context in
             guard let strongSelf = self else { return }
-            strongSelf.constraintsMap.forEach { (polygon, constraintPair) in
-                polygon.setNeedsDisplay()
-            }
             strongSelf.mainStackView?.setNeedsLayout()
         })
     }
