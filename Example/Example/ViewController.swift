@@ -9,19 +9,50 @@ import UIKit
 import Polygon
 
 class ViewController: UIViewController {
-    var mainStackView: UIStackView!
+    private var mainStackView: UIStackView!
+    private var topPaddingView: UIView!
+    private var bottomPaddingView: UIView!
+    private var animatablePolygon: AnimatablePolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        configureUI()
+        configureMainView()
+        configureTopPadding()
+        configureTopStackView()
+        configureBottomStack()
+        configureSeparator()
+        configureAnimatablePolygon()
+        configureBottomPadding()
     }
-
-    private func configureUI() {
+    
+    private func configureMainView() {
+        mainStackView = UIStackView()
+        mainStackView.translatesAutoresizingMaskIntoConstraints = false
+        mainStackView.axis = .vertical
+        mainStackView.backgroundColor = .systemBackground
+        mainStackView.alignment = .fill
+        mainStackView.spacing = 16
+        
+        self.view.addSubview(mainStackView)
+        
+        NSLayoutConstraint.activate([
+            mainStackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
+            mainStackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
+            mainStackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 16),
+            mainStackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -16),
+        ])
+    }
+    
+    private func configureTopPadding() {
+        topPaddingView = UIView()
+        mainStackView.addArrangedSubview(topPaddingView)
+    }
+    
+    private func configureTopStackView() {
         let topStackView = UIStackView()
         topStackView.axis = .horizontal
-        topStackView.backgroundColor = .systemBackground
         topStackView.alignment = .fill
         topStackView.distribution = .equalSpacing
         
@@ -71,10 +102,12 @@ class ViewController: UIViewController {
         nanogon.numberOfSides = 9
         nanogon.rotationAngle = -10.5
         addConstrainedSubview(nanogon, to: topStackView)
-                
+        mainStackView.addArrangedSubview(topStackView)
+    }
+    
+    private func configureBottomStack() {
         let bottomStackView = UIStackView()
         bottomStackView.axis = .horizontal
-        bottomStackView.backgroundColor = .systemBackground
         bottomStackView.alignment = .fill
         bottomStackView.distribution = .equalSpacing
         
@@ -119,34 +152,50 @@ class ViewController: UIViewController {
         sixteengon.fillColor = UIColor.tintColor
         sixteengon.numberOfSides = 16
         addConstrainedSubview(sixteengon, to: bottomStackView)
-        
-        mainStackView = UIStackView()
-        mainStackView.translatesAutoresizingMaskIntoConstraints = false
-        mainStackView.axis = .vertical
-        mainStackView.backgroundColor = .systemBackground
-        mainStackView.alignment = .fill
-        mainStackView.spacing = 16
-        
-        let topPaddingView = UIView()
-        let bottomPaddingView = UIView()
-        
-        mainStackView.addArrangedSubview(topPaddingView)
-        mainStackView.addArrangedSubview(topStackView)
         mainStackView.addArrangedSubview(bottomStackView)
+    }
+    
+    private func configureSeparator() {
+        let separatorLine = UIView()
+        separatorLine.backgroundColor = .systemGray3
+        NSLayoutConstraint.activate([
+            separatorLine.heightAnchor.constraint(equalToConstant: 1.0)
+        ])
+        mainStackView.addArrangedSubview(separatorLine)
+    }
+
+    private func configureAnimatablePolygon() {
+        let animationStack = UIStackView()
+        animationStack.axis = .horizontal
+        animationStack.alignment = .center
+        animationStack.distribution = .fill
+        animationStack.spacing = 16
+        
+        let button = UIButton(configuration: UIButton.Configuration.filled())
+        button.setTitle("Rotate", for: .normal)
+        button.addTarget(self, action: #selector(didClickRotate(_:)), for: .touchUpInside)
+        animationStack.addArrangedSubview(button)
+        
+        animatablePolygon = AnimatablePolygon()
+        animatablePolygon.backgroundColor = .systemGray5
+        animatablePolygon.fillColor = UIColor.systemPurple
+        animatablePolygon.numberOfSides = 5
+        animatablePolygon.rotationAngle = -18
+        addConstrainedSubview(animatablePolygon, to: animationStack)
+        
+        let paddingView = UIView()
+        animationStack.addArrangedSubview(paddingView)
+        
+        mainStackView.addArrangedSubview(animationStack)
+    }
+    
+    private func configureBottomPadding() {
+        bottomPaddingView = UIView()
         mainStackView.addArrangedSubview(bottomPaddingView)
         
         NSLayoutConstraint.activate([
             topPaddingView.heightAnchor.constraint(equalTo: bottomPaddingView.heightAnchor),
             topPaddingView.widthAnchor.constraint(equalTo: bottomPaddingView.widthAnchor)
-        ])
-        
-        self.view.addSubview(mainStackView)
-        
-        NSLayoutConstraint.activate([
-            mainStackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
-            mainStackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 16),
-            mainStackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -16),
         ])
     }
     
@@ -160,9 +209,8 @@ class ViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.constraintsMap.forEach { (polygon, constraintPair) in
                 constraintPair.width.constant = idealWidthOfEachPolygon
-                polygon.setNeedsLayout()
             }
-            strongSelf.mainStackView?.setNeedsLayout()
+            //strongSelf.mainStackView?.setNeedsLayout()
         }, completion: { [weak self] context in
             guard let strongSelf = self else { return }
             strongSelf.mainStackView?.setNeedsLayout()
@@ -170,7 +218,7 @@ class ViewController: UIViewController {
     }
     
     /// before adding the view to the stack, creates a medium priority height and width constraints
-    func addConstrainedSubview(_ aPolygon: Polygon, to stackView: UIStackView) {
+    func addConstrainedSubview(_ aPolygon: EquilateralPolygon, to stackView: UIStackView) {
         let additionalHeight: CGFloat
         switch traitCollection.horizontalSizeClass {
         case .regular:
@@ -196,6 +244,35 @@ class ViewController: UIViewController {
         
         constraintsMap[aPolygon] = ConstraintPair(width: widthConstraint, height: heightConstraint)
         stackView.addArrangedSubview(aPolygon)
+    }
+    
+    @objc
+    private func didClickRotate(_ sender: Any) {
+        //get starting angle (in radians)
+        let currentAngleInDegrees = animatablePolygon.rotationAngle
+        let amountOfRotation = CGFloat(180)
+        let angleAfterRotationInDegrees = currentAngleInDegrees + amountOfRotation
+        
+        let currentAffineTransform = animatablePolygon.transform
+        let newAffineTransform = CGAffineTransform(rotationAngle: amountOfRotation.toRadians())
+        
+        let basicAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.transform))
+        basicAnimation.fromValue = CATransform3DMakeAffineTransform(animatablePolygon.transform)
+        basicAnimation.toValue = CATransform3DMakeAffineTransform(newAffineTransform)
+        basicAnimation.duration = 1 // Animation duration in seconds
+        basicAnimation.fillMode = .forwards
+        basicAnimation.isRemovedOnCompletion = false
+        
+        self.animatablePolygon.apply(animation: basicAnimation)
+    }
+    
+    // Function to rotate around a center point
+    func rotate(view: UIView, with angle: CGFloat) -> CGAffineTransform {
+        let center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+        let rotationTransform = CGAffineTransform(rotationAngle: angle)
+            //.translatedBy(x: -center.x, y: -center.y)
+        
+        return rotationTransform
     }
 }
 
@@ -272,4 +349,3 @@ struct ConstraintPair {
     return aStackView
 }
 */
-

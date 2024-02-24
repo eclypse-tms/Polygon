@@ -9,6 +9,8 @@ import UIKit
 
 @IBDesignable
 open class AnimatablePolygon: UIView, EquilateralPolygon {
+    open var animationCompletionListener: (() -> Void)?
+    
     @IBInspectable open var showDashes: Bool = false {
         didSet {
             setNeedsDisplay()
@@ -48,29 +50,36 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         }
     }
     
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        configurePolygon()
     }
     
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
+    open func apply(animation: CABasicAnimation, completion: (() -> Void)? = nil) {
+        animation.delegate = self
+        animationCompletionListener = completion
+        self.polygonLayer?.add(animation, forKey: animation.keyPath)
     }
     
-    open func commonInit() {
+    open var polygonLayer: CAShapeLayer?
+    
+    open func configurePolygon() {
+        polygonLayer?.removeFromSuperlayer()
+        polygonLayer == nil
+        
+        
         guard numberOfSides > 2 else { return }
 
         // we need to calculate the middle point of our frame
         // we will use this center as an anchor to draw our polygon
-        let centerPoint = CGPoint(x: frame.midX, y: frame.midY)
+        let centerPoint = CGPoint(x: bounds.midX, y: bounds.midY)
 
         // the polygon points will be located on a circle - hence the radius calculation
         // this radius calculation also takes into account the border width which gets
         // added on the outside of the shape
-        let radius = min(frame.width, frame.height) / 2.0 - borderWidth / 2.0
+        let radius = min(bounds.width, bounds.height) / 2.0 - borderWidth / 2.0
 
-        drawDashes(rect: frame, center: centerPoint, radius: radius)
+        drawDashes(rect: bounds, center: centerPoint, radius: radius)
 
         // Apply the rotation transformation to the path
         let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
@@ -79,15 +88,23 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         rotate(polygonPath: polygonPath, originalCenter: centerPoint)
 
         // scale the polygon to fit the bounds
-        scale(polygonPath: polygonPath, rect: frame, originalCenter: centerPoint)
+        scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint)
         
-        let shapeLayer = CAShapeLayer(layer: layer)
-        shapeLayer.path = polygonPath.cgPath
-        shapeLayer.frame = self.bounds
-        shapeLayer.masksToBounds = true
-        shapeLayer.fillColor = fillColor.cgColor
-        shapeLayer.strokeColor = borderColor.cgColor
-        shapeLayer.lineWidth = borderWidth
-        self.layer.mask = shapeLayer
+        let shapePath = CAShapeLayer()
+        shapePath.path = polygonPath.cgPath
+        shapePath.frame = self.bounds
+        shapePath.masksToBounds = true
+        shapePath.fillColor = fillColor.cgColor
+        shapePath.strokeColor = borderColor.cgColor
+        shapePath.lineWidth = borderWidth
+        self.layer.addSublayer(shapePath)
+        self.polygonLayer = shapePath
+    }
+}
+
+extension AnimatablePolygon: CAAnimationDelegate {
+    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        animationCompletionListener?()
+        animationCompletionListener = nil
     }
 }
