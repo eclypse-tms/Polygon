@@ -81,10 +81,10 @@ open class Polygon: UIView, EquilateralPolygon {
         let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
         
         // rotate the polygon based on provided rotation angle
-        rotate(polygonPath: polygonPath, originalCenter: centerPoint)
+        rotate(polygonPath: polygonPath, originalCenter: centerPoint, reCenter: false)
         
-        // scale the polygon to fit the bounds
-        scale(polygonPath: polygonPath, rect: rect, originalCenter: centerPoint)
+        // scale the polygon to fit the bounds and re-center the polygon
+        scale(polygonPath: polygonPath, rect: rect, originalCenter: centerPoint, reCenter: true)
         
         // apply colors and border
         fillColor.setFill()

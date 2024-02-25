@@ -9,7 +9,7 @@ import UIKit
 
 @IBDesignable
 open class AnimatablePolygon: UIView, EquilateralPolygon {
-    open var animationCompletionListener: (() -> Void)?
+    open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {
         didSet {
@@ -55,7 +55,15 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         configurePolygon()
     }
     
-    open func apply(animation: CABasicAnimation, completion: (() -> Void)? = nil) {
+    
+    /// convience function to apply a basic animation to the polygon sublayer.
+    ///
+    /// Instead of calling this function, you can get a hold of the CALayer directly
+    /// by invoking [AnimatablePolygon.polygonLayer].
+    /// - Parameters:
+    ///   - animation: animation to use for the polygon layer
+    ///   - completion: optional callback when the animation is finished
+    open func apply(animation: CABasicAnimation, completion: ((Bool) -> Void)? = nil) {
         animation.delegate = self
         animationCompletionListener = completion
         self.polygonLayer?.add(animation, forKey: animation.keyPath)
@@ -85,10 +93,10 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
 
         // rotate the polygon based on provided rotation angle
-        rotate(polygonPath: polygonPath, originalCenter: centerPoint)
+        rotate(polygonPath: polygonPath, originalCenter: centerPoint, reCenter: false)
 
         // scale the polygon to fit the bounds
-        scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint)
+        scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint, reCenter: true)
         
         let shapePath = CAShapeLayer()
         shapePath.path = polygonPath.cgPath
@@ -104,7 +112,7 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
 
 extension AnimatablePolygon: CAAnimationDelegate {
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        animationCompletionListener?()
+        animationCompletionListener?(flag)
         animationCompletionListener = nil
     }
 }

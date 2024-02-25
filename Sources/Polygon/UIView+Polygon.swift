@@ -27,11 +27,20 @@ public protocol EquilateralPolygon: UIView {
     
     /// Rotation angle expressed in degrees, i.e. 45° or 120°
     var rotationAngle: CGFloat { get set }
+    
+    /// given a center point and radius, it creates a bezier path for an equilateral Polygon
+    func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat) -> UIBezierPath
+    
+    /// rotates the given bezier path and re-centers the shape in the bounding rectangle
+    func rotate(polygonPath: UIBezierPath, originalCenter: CGPoint, reCenter: Bool)
+    
+    /// scales the bezier path to fit the bounding rectangle, if necessary
+    func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool)
 }
 
 extension EquilateralPolygon {
-    /// scales the shape to fit the bounding rectangle, if necessary
-    public func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint) {
+    
+    public func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = polygonPath.bounds
         let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * borderWidth)
@@ -46,17 +55,21 @@ extension EquilateralPolygon {
             let scaledAffineTransform = CGAffineTransform(scaleX: finalScaleFactor, y: finalScaleFactor)
             polygonPath.apply(scaledAffineTransform)
             
-            // scaling operation happens with respect to the origin point
-            // as a result, scaling the polygon will shift its center
-            // we need to bring the shape back to the original rectangle's center
-            let centerAfterScaling = CGPoint(x: polygonPath.bounds.midX, y: polygonPath.bounds.midY)
-            let recenteredAffineTransfor = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
-            polygonPath.apply(recenteredAffineTransfor)
+            if reCenter {
+                // scaling operation happens with respect to the origin/anchor point
+                // as a result, scaling the polygon will shift its center
+                // we need to bring the shape back to the original rectangle's center
+                let centerAfterScaling = CGPoint(x: polygonPath.bounds.midX, y: polygonPath.bounds.midY)
+                let recenteredAffineTransfor = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
+                polygonPath.apply(recenteredAffineTransfor)
+            } else {
+                // we don't need to recenter, we are done!
+            }
         }
     }
     
     /// rotates the given bezier path and re-centers the shape in the bounding rectangle
-    public func rotate(polygonPath: UIBezierPath, originalCenter: CGPoint) {
+    public func rotate(polygonPath: UIBezierPath, originalCenter: CGPoint, reCenter: Bool) {
         if abs(rotationAngle.truncatingRemainder(dividingBy: 360.0)) < 0.01 {
             // no rotation needs to be applied, since rotation angle is essentially zero
         } else {
@@ -65,11 +78,15 @@ extension EquilateralPolygon {
             let rotationAffineTransform = CGAffineTransform(rotationAngle: rotationAngle.toRadians())
             polygonPath.apply(rotationAffineTransform)
             
-            // now that the bezier path is rotated according to the provided angle around the origin,
-            // we need to re-center the path in the bounding rectangle
-            let rotatedCenter = CGPoint(x: polygonPath.bounds.midX, y: polygonPath.bounds.midY)
-            let centerAfterRotationAffineTransform = CGAffineTransform(translationX: originalCenter.x - rotatedCenter.x, y: originalCenter.y - rotatedCenter.y)
-            polygonPath.apply(centerAfterRotationAffineTransform)
+            if reCenter {
+                // now that the bezier path is rotated according to the provided angle around the origin/anchor,
+                // we should re-center the path in the bounding rectangle
+                let rotatedCenter = CGPoint(x: polygonPath.bounds.midX, y: polygonPath.bounds.midY)
+                let centerAfterRotationAffineTransform = CGAffineTransform(translationX: originalCenter.x - rotatedCenter.x, y: originalCenter.y - rotatedCenter.y)
+                polygonPath.apply(centerAfterRotationAffineTransform)
+            } else {
+                // we don't need to recenter, we are done!
+            }
         }
     }
     

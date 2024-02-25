@@ -251,9 +251,7 @@ class ViewController: UIViewController {
         //get starting angle (in radians)
         let currentAngleInDegrees = animatablePolygon.rotationAngle
         let amountOfRotation = CGFloat(180)
-        let angleAfterRotationInDegrees = currentAngleInDegrees + amountOfRotation
-        
-        let currentAffineTransform = animatablePolygon.transform
+                
         let newAffineTransform = CGAffineTransform(rotationAngle: amountOfRotation.toRadians())
         
         let basicAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.transform))
@@ -263,16 +261,8 @@ class ViewController: UIViewController {
         basicAnimation.fillMode = .forwards
         basicAnimation.isRemovedOnCompletion = false
         
-        self.animatablePolygon.apply(animation: basicAnimation)
-    }
-    
-    // Function to rotate around a center point
-    func rotate(view: UIView, with angle: CGFloat) -> CGAffineTransform {
-        let center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
-        let rotationTransform = CGAffineTransform(rotationAngle: angle)
-            //.translatedBy(x: -center.x, y: -center.y)
-        
-        return rotationTransform
+        self.animatablePolygon.apply(animation: basicAnimation, completion: { _ in
+        })
     }
 }
 
