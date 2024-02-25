@@ -9,23 +9,11 @@
 </p>
 
 # Polygon 
-
-Draws an equilateral polygon of any sides within your UIView.
+Draws an equilateral polygon of any side within your UIView. Extremely simply API.
 
 <p align="center">
   <img src="./assets/hero_image.jpg" width="454.5" height="326.5">
 </p>
-
-## Installation (iOS, watchOS, tvOS, macCatalyst)
-
-### Swift Package Manager 
-Add Polygon to your project via Swift Package Manager.
-
-`https://github.com/eclypse-tms/Polygon`
-
-### Manually
-Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/Sources/Polygon) into your project.
-
 
 ## Polygon Usage
 ```
@@ -40,8 +28,22 @@ pentagon.borderWidth = 2
 
 ## Result
 <p align="center">
-    <img src="./assets/rotation applied.png" height="162.25" width="547" alt="polygon preview">
+    <img src="./assets/demo.jpg" width="531" height="176.5"  alt="polygon preview">
 </p>
+
+
+## Installation (iOS, watchOS, tvOS, macCatalyst)
+
+### Swift Package Manager 
+Add Polygon to your project via Swift Package Manager.
+
+`https://github.com/eclypse-tms/Polygon`
+
+### Manually
+Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/Sources/Polygon) into your project.
+
+
+
 
 ## Animatable Polygon Variation
 
