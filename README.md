@@ -13,7 +13,7 @@
 Draws an equilateral polygon of any sides within your UIView.
 
 <p align="center">
-  <img src="./assets/hero_image.png" width="454.5" height="326.5">
+  <img src="./assets/hero_image.jpg" width="454.5" height="326.5">
 </p>
 
 ## Installation (iOS, watchOS, tvOS, macCatalyst)
