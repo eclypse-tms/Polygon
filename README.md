@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="150" height="150" src="./assets/countrykit_app_icon.svg">
+  <img width="150" height="150" src="./assets/polygon_app_icon.svg">
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 Draws an equilateral polygon of any sides within your UIView.
 
 <p align="center">
-  <img src="./assets/hero_image.svg">
+  <img src="./assets/hero_image.png" width="454.5" height="326.5">
 </p>
 
 ## Installation (iOS, watchOS, tvOS, macCatalyst)
