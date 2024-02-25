@@ -40,7 +40,7 @@ pentagon.borderWidth = 2
 
 ## Result
 <p align="center">
-    <img src="./asets/rotation applied.png" height="162.25" width="547" alt="polygon preview">
+    <img src="./assets/rotation applied.png" height="162.25" width="547" alt="polygon preview">
 </p>
 
 ## Animatable Polygon Variation
@@ -65,6 +65,6 @@ pentagon.apply(animation: opacityAnimation)
 ```
 
 <p align="center">
-    <img src="./asets/animatable_polygon_demo.gif" alt="polygon hiding">
+    <img src="./assets/animatable_polygon_demo.gif" alt="polygon hiding">
 </p>
 
