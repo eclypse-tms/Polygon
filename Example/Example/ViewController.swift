@@ -12,6 +12,7 @@ class ViewController: UIViewController {
     private var mainStackView: UIStackView!
     private var topPaddingView: UIView!
     private var bottomPaddingView: UIView!
+    private var animateButton: UIButton!
     private var animatablePolygon: AnimatablePolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
 
@@ -171,10 +172,13 @@ class ViewController: UIViewController {
         animationStack.distribution = .fill
         animationStack.spacing = 16
         
-        let button = UIButton(configuration: UIButton.Configuration.filled())
-        button.setTitle("Rotate", for: .normal)
-        button.addTarget(self, action: #selector(didClickRotate(_:)), for: .touchUpInside)
-        animationStack.addArrangedSubview(button)
+        animateButton = UIButton(configuration: UIButton.Configuration.filled())
+        animateButton.setTitle("Animate", for: .normal)
+        animateButton.addTarget(self, action: #selector(didClickFadeOrShow(_:)), for: .touchUpInside)
+        animationStack.addArrangedSubview(animateButton)
+        NSLayoutConstraint.activate([
+            animateButton.widthAnchor.constraint(equalToConstant: 120)
+        ])
         
         animatablePolygon = AnimatablePolygon()
         animatablePolygon.backgroundColor = .systemGray5
@@ -247,22 +251,29 @@ class ViewController: UIViewController {
     }
     
     @objc
-    private func didClickRotate(_ sender: Any) {
+    private func didClickFadeOrShow(_ sender: Any) {
         //get starting angle (in radians)
-        let currentAngleInDegrees = animatablePolygon.rotationAngle
-        let amountOfRotation = CGFloat(180)
-                
-        let newAffineTransform = CGAffineTransform(rotationAngle: amountOfRotation.toRadians())
+        let currentOpacity = Float(animatablePolygon.polygonLayer.opacity)
+        let targetOpacity = 1.0 - currentOpacity
+        let opacityAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.opacity))
+        opacityAnimation.fromValue = currentOpacity
+        opacityAnimation.toValue = targetOpacity
+        opacityAnimation.duration = 2.0
+        opacityAnimation.isRemovedOnCompletion = false
+        opacityAnimation.fillMode = .forwards
+        opacityAnimation.repeatCount = 10
+        opacityAnimation.autoreverses = true
         
-        let basicAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.transform))
-        basicAnimation.fromValue = CATransform3DMakeAffineTransform(animatablePolygon.transform)
-        basicAnimation.toValue = CATransform3DMakeAffineTransform(newAffineTransform)
-        basicAnimation.duration = 1 // Animation duration in seconds
-        basicAnimation.fillMode = .forwards
-        basicAnimation.isRemovedOnCompletion = false
-        
-        self.animatablePolygon.apply(animation: basicAnimation, completion: { _ in
+        self.animatablePolygon.apply(animation: opacityAnimation, completion: { _ in
+            //self.animatablePolygon.polygonLayer.opacity = targetOpacity
         })
+        
+        /*
+        let opacityAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.opacity))
+        opacityAnimation.fromValue = Float(1.0)
+        opacityAnimation.toValue = Float(0.0)
+        opacityAnimation.duration = 0.5
+        */
     }
 }
 

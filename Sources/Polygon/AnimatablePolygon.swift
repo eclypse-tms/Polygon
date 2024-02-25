@@ -69,13 +69,9 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         self.polygonLayer?.add(animation, forKey: animation.keyPath)
     }
     
-    open var polygonLayer: CAShapeLayer?
+    open var polygonLayer: CAShapeLayer!
     
     open func configurePolygon() {
-        polygonLayer?.removeFromSuperlayer()
-        polygonLayer == nil
-        
-        
         guard numberOfSides > 2 else { return }
 
         // we need to calculate the middle point of our frame
@@ -106,6 +102,7 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         shapePath.strokeColor = borderColor.cgColor
         shapePath.lineWidth = borderWidth
         self.layer.addSublayer(shapePath)
+        self.polygonLayer?.removeFromSuperlayer()
         self.polygonLayer = shapePath
     }
 }
