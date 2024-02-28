@@ -36,9 +36,22 @@ public protocol EquilateralPolygon: UIView {
     
     /// scales the bezier path to fit the bounding rectangle, if necessary
     func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool)
+    
+    /// expressed in degrees.
+    ///
+    /// one interior angle of a regular polygon is (numberOfSides -2)*180/numberOfSides
+    var oneInteriorAngle: CGFloat { get }
 }
 
 extension EquilateralPolygon {
+    
+    public var oneInteriorAngle: CGFloat {
+        if numberOfSides < 3 {
+            return .zero
+        } else {
+            return CGFloat((numberOfSides - 2)*180)/CGFloat(numberOfSides)
+        }
+    }
     
     public func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) {
         // 1. calculate the scaling factor to touch all the edges
@@ -99,7 +112,7 @@ extension EquilateralPolygon {
         // where the polygon corner should be
         var points = [CGPoint]()
         for i in 0..<numberOfSides {
-            let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
+            let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter + rotationAngle.toRadians()
             let x = centerPoint.x + radius * cos(currentAngleFromCenter)
             let y = centerPoint.y + radius * sin(currentAngleFromCenter)
             points.append(CGPoint(x: x, y: y))

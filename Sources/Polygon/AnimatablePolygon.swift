@@ -88,9 +88,6 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
         // Apply the rotation transformation to the path
         let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
 
-        // rotate the polygon based on provided rotation angle
-        rotate(polygonPath: polygonPath, originalCenter: centerPoint, reCenter: false)
-
         // scale the polygon to fit the bounds
         scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint, reCenter: true)
         

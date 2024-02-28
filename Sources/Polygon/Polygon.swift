@@ -80,9 +80,6 @@ open class Polygon: UIView, EquilateralPolygon {
         // Apply the rotation transformation to the path
         let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
         
-        // rotate the polygon based on provided rotation angle
-        rotate(polygonPath: polygonPath, originalCenter: centerPoint, reCenter: false)
-        
         // scale the polygon to fit the bounds and re-center the polygon
         scale(polygonPath: polygonPath, rect: rect, originalCenter: centerPoint, reCenter: true)
         
