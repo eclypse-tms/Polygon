@@ -9,14 +9,6 @@ import SwiftUI
 
 /// Polygon allows you to add a polygon of any sides to your SwiftUI based views
 public struct Polygon: View {
-    public var borderWidth: CGFloat = 1.0
-    
-    public var borderColor: Color = .black
-    
-    public var showDashes: Bool = false
-    
-    public var fillColor: Color = .blue
-        
     public var numberOfSides: Int = 4 {
         didSet {
             if numberOfSides < 3 {
@@ -27,14 +19,22 @@ public struct Polygon: View {
         }
     }
     
+    public var fillColor: Color = .blue
+    
     public var rotationAngle: Angle = .zero
     
-    public init(borderWidth: CGFloat = 1.0,
-                borderColor: Color = .black,
-                showDashes: Bool = false,
+    public var borderWidth: CGFloat = 1.0
+    
+    public var borderColor: Color = .black
+    
+    public var showDashes: Bool = false
+    
+    public init(numberOfSides: Int = 4,
                 fillColor: Color = .blue,
-                numberOfSides: Int = 4,
-                rotationAngle: Angle = .zero) {
+                rotationAngle: Angle = .zero,
+                borderWidth: CGFloat = 1.0,
+                borderColor: Color = .black,
+                showDashes: Bool = false) {
         self.borderWidth = borderWidth
         self.borderColor = borderColor
         self.showDashes = showDashes
