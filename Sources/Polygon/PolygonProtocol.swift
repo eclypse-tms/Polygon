@@ -1,15 +1,15 @@
 //
-//  UIView+Polygon.swift
+//  PolygonProtocol.swift
+//  
 //
-//
-//  Created by eclypse on 2/23/24.
+//  Created by eclypse on 3/2/24.
 //
 
 import UIKit
 
-public protocol EquilateralPolygon: UIView {
+public protocol PolygonProtocol: UIView {
     /// whether to show dashes around the circle that the initial
-    /// polygon is rendered before scaling and rotation. used in the 
+    /// polygon is rendered before scaling and rotation. used in the
     /// accompanying blog for demonstration purposes.
     var showDashes: Bool { get set }
     
@@ -43,7 +43,7 @@ public protocol EquilateralPolygon: UIView {
     var oneInteriorAngle: CGFloat { get }
 }
 
-extension EquilateralPolygon {
+extension PolygonProtocol {
     
     public var oneInteriorAngle: CGFloat {
         if numberOfSides < 3 {

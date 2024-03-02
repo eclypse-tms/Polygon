@@ -8,7 +8,7 @@
 import UIKit
 
 @IBDesignable
-open class AnimatablePolygon: UIView, EquilateralPolygon {
+open class AnimatableUIPolygon: UIView, PolygonProtocol {
     open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {
@@ -59,7 +59,7 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
     /// convience function to apply a basic animation to the polygon sublayer.
     ///
     /// Instead of calling this function, you can get a hold of the CALayer directly
-    /// by invoking [AnimatablePolygon.polygonLayer].
+    /// by invoking [AnimatableUIPolygon.polygonLayer].
     /// - Parameters:
     ///   - animation: animation to use for the polygon layer
     ///   - completion: optional callback when the animation is finished
@@ -104,7 +104,7 @@ open class AnimatablePolygon: UIView, EquilateralPolygon {
     }
 }
 
-extension AnimatablePolygon: CAAnimationDelegate {
+extension AnimatableUIPolygon: CAAnimationDelegate {
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         animationCompletionListener?(flag)
         animationCompletionListener = nil
