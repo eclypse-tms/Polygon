@@ -9,7 +9,7 @@
 </p>
 
 # Polygon 
-Draws an equilateral polygon of any side within your UIView. Extremely simply API.
+Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely simply API. An example of polygons from triangle to 16-sided-polygon.
 
 <p align="center">
   <img src="./assets/hero_image.jpg" width="454.5" height="326.5">
@@ -30,7 +30,6 @@ var body: some View {
 ## Polygon Usage - UIKit
 ```
 let pentagon = UIPolygon()
-pentagon.backgroundColor = .systemGray5 //optional background color
 pentagon.fillColor = UIColor.green // the color to fill the polygon width
 pentagon.numberOfSides = 5 // draws a pentagon
 pentagon.rotationAngle = 30 // rotate the shape in any angle between -179° thru 180°
@@ -81,4 +80,7 @@ pentagon.apply(animation: opacityAnimation)
 <p align="center">
     <img src="./assets/animatable_polygon_demo.gif" alt="polygon hiding">
 </p>
+
+## Polygons in SwiftUI are animatable 
+In SwiftUI, the Polygon class implements Shape protocol - which makes it animatable.
 

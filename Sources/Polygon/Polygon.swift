@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Polygon allows you to add a polygon of any sides to your SwiftUI based views
-public struct Polygon: View {
+public struct Polygon: Shape {
     public var numberOfSides: Int = 4 {
         didSet {
             if numberOfSides < 3 {
@@ -28,7 +28,7 @@ public struct Polygon: View {
     public var borderColor: Color = .black
     
     public var showDashes: Bool = false
-    
+        
     public init(numberOfSides: Int = 4,
                 fillColor: Color = .blue,
                 rotationAngle: Angle = .zero,
@@ -56,24 +56,38 @@ public struct Polygon: View {
             // we need to calculate the middle point of our frame
             // we will use this center as an anchor to draw our polygon
             let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
-
+            
             // the polygon points will be located on a circle - hence the radius calculation
             // this radius calculation also takes into account the border width which gets
             // added on the outside of the shape
-            let radius = min(boundingRect.width, boundingRect.height) / 2.0 - borderWidth / 2.0
-            let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
             
+            let radius = min(boundingRect.width, boundingRect.height) / 2.0 - borderWidth / 2.0
             
             drawDashes(rect: boundingRect, center: centerPoint, radius: radius, context: context)
-            let scaledPolygonPath = scale(originalPath: polygonPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
-                        
+            
+            let scaledPolygonPath = path(in: boundingRect)
             context.stroke(scaledPolygonPath, with: .color(borderColor), style: StrokeStyle(lineWidth: borderWidth))
             context.fill(scaledPolygonPath, with: .color(fillColor))
         }
     }
     
+    public func path(in rect: CGRect) -> Path {
+        // we need to calculate the middle point of our frame
+        // we will use this center as an anchor to draw our polygon
+        let centerPoint = CGPoint(x: rect.midX, y: rect.midY)
+        
+        // the polygon points will be located on a circle - hence the radius calculation
+        // this radius calculation also takes into account the border width which gets
+        // added on the outside of the shape
+        
+        let radius = min(rect.width, rect.height) / 2.0 - borderWidth / 2.0
+        let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+        let scaledPolygonPath = scale(originalPath: initialPath, rect: rect, originalCenter: centerPoint, reCenter: true)
+        return scaledPolygonPath
+    }
+    
     /// given a center point and radius, it creates a bezier path for an equilateral Polygon
-    public func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat) -> Path {
+    private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat) -> Path {
         // this is the slice we have to traverse for each side of the polygon
         let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
         
@@ -96,7 +110,7 @@ public struct Polygon: View {
         return polygonPath
     }
     
-    public func drawDashes(rect: CGRect, center: CGPoint, radius: CGFloat, context: GraphicsContext) {
+    private func drawDashes(rect: CGRect, center: CGPoint, radius: CGFloat, context: GraphicsContext) {
         if showDashes {
             var dashedCirclePath = Path()
             dashedCirclePath.addArc(center: center, radius: radius, startAngle: Angle.zero, endAngle: Angle(degrees: 360), clockwise: true)
@@ -104,7 +118,7 @@ public struct Polygon: View {
         }
     }
     
-    public func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
+    private func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = originalPath.boundingRect
         let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * borderWidth)
