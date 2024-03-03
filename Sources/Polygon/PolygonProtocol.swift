@@ -16,7 +16,7 @@ public protocol PolygonProtocol: UIView {
     /// the color to fill the polygon with
     var fillColor: UIColor { get set }
     
-    /// optional border color. only works when the width is greater than 0
+    /// optional border color. only works when the border width is greater than 0
     var borderColor: UIColor { get set }
     
     /// optional border width. specify zero to negate the border

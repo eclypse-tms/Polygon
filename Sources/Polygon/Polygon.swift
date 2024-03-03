@@ -9,6 +9,7 @@ import SwiftUI
 
 /// Polygon allows you to add a polygon of any sides to your SwiftUI based views
 public struct Polygon: Shape {
+    /// number of equal sides
     public var numberOfSides: Int = 4 {
         didSet {
             if numberOfSides < 3 {
@@ -19,14 +20,21 @@ public struct Polygon: Shape {
         }
     }
     
+    /// the color to fill the polygon with
     public var fillColor: Color = .blue
     
+    /// Rotation angle expressed in degrees (45°) or radians (π/4)
     public var rotationAngle: Angle = .zero
     
+    /// optional border width. specify zero to negate the border
     public var borderWidth: CGFloat = 1.0
     
+    /// optional border color. only works when the border width is greater than 0
     public var borderColor: Color = .black
     
+    /// whether to show dashes around the circle that the initial
+    /// polygon is rendered before scaling and rotation. used in the
+    /// accompanying blog for demonstration purposes.
     public var showDashes: Bool = false
         
     public init(numberOfSides: Int = 4,
@@ -45,11 +53,6 @@ public struct Polygon: Shape {
     
     public init() {}
     
-    mutating func newBorderColor(_ color: Color) -> some View {
-        self.borderColor = color
-        return self
-    }
-    
     public var body: some View {
         Canvas { context, size in
             let boundingRect = CGRect(origin: CGPoint(x: 0,y: 0), size: size)
@@ -60,7 +63,6 @@ public struct Polygon: Shape {
             // the polygon points will be located on a circle - hence the radius calculation
             // this radius calculation also takes into account the border width which gets
             // added on the outside of the shape
-            
             let radius = min(boundingRect.width, boundingRect.height) / 2.0 - borderWidth / 2.0
             
             drawDashes(rect: boundingRect, center: centerPoint, radius: radius, context: context)
@@ -79,8 +81,8 @@ public struct Polygon: Shape {
         // the polygon points will be located on a circle - hence the radius calculation
         // this radius calculation also takes into account the border width which gets
         // added on the outside of the shape
-        
         let radius = min(rect.width, rect.height) / 2.0 - borderWidth / 2.0
+        
         let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
         let scaledPolygonPath = scale(originalPath: initialPath, rect: rect, originalCenter: centerPoint, reCenter: true)
         return scaledPolygonPath
