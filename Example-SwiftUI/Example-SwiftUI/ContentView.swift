@@ -13,6 +13,12 @@ struct ContentView: View {
         VStack(alignment: .center, spacing: 16) {
             Spacer()
             HStack {
+                Polygon(numberOfSides: <#T##Int#>,
+                        fillColor: <#T##Color#>,
+                        rotationAngle: <#T##Angle#>,
+                        borderWidth: <#T##CGFloat#>,
+                        borderColor: <#T##Color#>,
+                        showDashes: <#T##Bool#>)
                 Polygon(numberOfSides: 3)
                     .background(Color.init(uiColor: .systemGray5))
                 Polygon(numberOfSides: 4, rotationAngle: Angle(degrees: 45))

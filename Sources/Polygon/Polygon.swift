@@ -45,6 +45,11 @@ public struct Polygon: View {
     
     public init() {}
     
+    mutating func newBorderColor(_ color: Color) -> some View {
+        self.borderColor = color
+        return self
+    }
+    
     public var body: some View {
         Canvas { context, size in
             let boundingRect = CGRect(origin: CGPoint(x: 0,y: 0), size: size)
