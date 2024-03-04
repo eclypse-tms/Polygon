@@ -3,9 +3,10 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/SwiftUI-15+-green?logo=swift" alt="Swift 5.x">
-    <img src="https://img.shields.io/badge/UIKit-15+-orange?logo=uikit" alt="UIKit">
-    <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="MIT License">
+    <img src="https://img.shields.io/badge/UIKit-darkslategray?logo=uikit" alt="UIKit">
+    <img src="https://img.shields.io/badge/SwiftUI-darkslategray?logo=swift" alt="SwiftUI">
+	<img src="https://img.shields.io/badge/iOS-15+-blue" alt="SwiftUI">
+	<img src="https://img.shields.io/badge/macOS-12+-blue" alt="SwiftUI">
 </p>
 
 # Polygon 
@@ -42,8 +43,9 @@ pentagon.borderWidth = 2
     <img src="./assets/demo.jpg" width="531" height="176.5"  alt="polygon preview">
 </p>
 
+<br/>
 
-## Installation (iOS, watchOS, tvOS, macCatalyst)
+## Installation (iOS, macOS, macCatalyst)
 
 ### Swift Package Manager 
 Add Polygon to your project via Swift Package Manager.
@@ -51,12 +53,17 @@ Add Polygon to your project via Swift Package Manager.
 `https://github.com/eclypse-tms/Polygon`
 
 
+<br/>
+
 ### Manually
 Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/Sources/Polygon) into your project.
 
+<br/>
 
 ## Breaking Change with version 2
 Since we added support for SwiftUI, previously named `Polygon` class has been renamed to `UIPolygon` to follow the UIKit's convention. The class name `Polygon` is now used for SwiftUI variation.
+
+<br/>
 
 ## Animatable Polygon Variation for UIKit
 
@@ -83,6 +90,8 @@ pentagon.apply(animation: opacityAnimation)
     <img src="./assets/animatable_polygon_demo.gif" alt="polygon hiding">
 </p>
 
+<br/>
+
 ## Polygons in SwiftUI are animatable 
-In SwiftUI, the Polygon class implements Shape protocol - which makes it animatable.
+In SwiftUI, the Polygon class conforms to the `Shape` protocol - which makes them animatable.
 

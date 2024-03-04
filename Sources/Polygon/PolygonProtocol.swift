@@ -5,6 +5,7 @@
 //  Created by eclypse on 3/2/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol PolygonProtocol: UIView {
@@ -141,3 +142,10 @@ extension PolygonProtocol {
         }
     }
 }
+#elseif canImport(AppKit)
+import AppKit
+public protocol PolygonProtocol {
+    // this protocol doesn't do anything in AppKit
+}
+
+#endif

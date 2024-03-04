@@ -1,10 +1,11 @@
 //
-//  Polygon.swift
+//  AnimatableUIPolygon.swift
 //
 //
 //  Created by eclypse on 2/22/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 @IBDesignable
@@ -110,3 +111,10 @@ extension AnimatableUIPolygon: CAAnimationDelegate {
         animationCompletionListener = nil
     }
 }
+#elseif canImport(AppKit)
+import AppKit
+open class AnimatableUIPolygon {
+    // this class doesn't do anything in AppKit
+}
+
+#endif

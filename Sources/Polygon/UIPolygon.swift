@@ -5,11 +5,11 @@
 //  Created by eclypse on 2/22/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
-@IBDesignable
-
 /// UIPolygon allows you to add a polygon of any sides to your UIKit based views
+@IBDesignable
 open class UIPolygon: UIView, PolygonProtocol {
     @IBInspectable open var showDashes: Bool = false {
         didSet {
@@ -94,3 +94,10 @@ open class UIPolygon: UIView, PolygonProtocol {
         polygonPath.stroke()
     }
 }
+#elseif canImport(AppKit)
+import AppKit
+public protocol UIPolygon {
+    // this class doesn't do anything in AppKit
+}
+
+#endif
