@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Polygon",
-    platforms: [.iOS(.v15), .macCatalyst(.v15), .tvOS(.v15), .watchOS(.v6)],
+    platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v12)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(

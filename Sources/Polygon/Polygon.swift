@@ -152,16 +152,19 @@ public struct Polygon: Shape {
 }
 
 #Preview {
-    HStack(spacing: 20, content: {
+    let lightGray = Color(white: 0.85)
+    var hStack = HStack(spacing: 20, content: {
       Polygon(numberOfSides: 3, fillColor: .blue, rotationAngle: Angle(degrees: 30))
-        .background(Color(uiColor: .systemGray5))
+        .background(lightGray)
       Polygon(numberOfSides: 4, fillColor: .blue, rotationAngle: Angle(degrees: 45))
-        .background(Color(uiColor: .systemGray5))
+        .background(lightGray)
       Polygon(numberOfSides: 5, fillColor: .blue, rotationAngle: Angle(degrees: -18))
-        .background(Color(uiColor: .systemGray5))
+        .background(lightGray)
       Polygon(numberOfSides: 6, fillColor: .blue, rotationAngle: Angle(degrees: 0))
-        .background(Color(uiColor: .systemGray5))
+        .background(lightGray)
     })
     .frame(maxHeight: 360)
     .padding()
+    
+    return hStack
 }
