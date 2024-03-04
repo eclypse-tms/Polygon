@@ -1,6 +1,6 @@
 //
-//  Polygon.swift
-//  
+//  TiledPolygon.swift
+//
 //
 //  Created by eclypse on 3/2/24.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Polygon allows you to add a polygon of any sides to your SwiftUI based views
-public struct Polygon: Shape {
+public struct TiledPolygon: View {
     /// number of equal sides
     public var numberOfSides: Int = 4 {
         didSet {
@@ -36,12 +36,19 @@ public struct Polygon: Shape {
     /// polygon is rendered before scaling and rotation. used in the
     /// accompanying blog for demonstration purposes.
     public var showDashes: Bool = false
+    
+    public var fixedTileSize = CGSize(width: 120, height: 120)
+    
+    public var tiling: Tiling?
+    
+    public var originOffset = CGPoint(x: 0, y: 0)
         
     public init(numberOfSides: Int = 4,
                 fillColor: Color = .blue,
                 rotationAngle: Angle = .zero,
                 borderWidth: CGFloat = 1.0,
                 borderColor: Color = .black,
+                tiling: Tiling? = nil,
                 showDashes: Bool = false) {
         self.borderWidth = borderWidth
         self.borderColor = borderColor
@@ -49,43 +56,70 @@ public struct Polygon: Shape {
         self.fillColor = fillColor
         self.numberOfSides = numberOfSides
         self.rotationAngle = rotationAngle
+        self.tiling = tiling
     }
     
     public init() {}
     
     public var body: some View {
-        Canvas { context, size in
-            let boundingRect = CGRect(origin: CGPoint(x: 0,y: 0), size: size)
-            // we need to calculate the middle point of our frame
-            // we will use this center as an anchor to draw our polygon
-            let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
+        Canvas { context, canvasSize in
+            //first calculate how many tiles would fit the canvas size
+            //if we have horizontal/vertical tiling information use that, otherwise,
+            //use the fixed tile size instead
+            let numberOfHorizontalTiles: Int
+            let numberOfVerticalTiles: Int
+            let effectiveTileSize: CGSize
+            if let validTiling = tiling {
+                numberOfHorizontalTiles = Int(validTiling.numberOfHorizontalTiles.rounded(.up))
+                let canvasSizeAfterInterTilingGapIsApplied = canvasSize.width - (CGFloat(numberOfHorizontalTiles - 1) * validTiling.interTilingSpace)
+                let widthOfEachTile = canvasSizeAfterInterTilingGapIsApplied / CGFloat(validTiling.numberOfHorizontalTiles)
+                let heightOfEachTile = widthOfEachTile
+                numberOfVerticalTiles = Int((canvasSize.height / heightOfEachTile).rounded(.up))
+                effectiveTileSize = CGSize(width: widthOfEachTile,height: heightOfEachTile)
+            } else {
+                numberOfHorizontalTiles = Int((canvasSize.width / fixedTileSize.width).rounded(.up))
+                numberOfVerticalTiles = Int((canvasSize.height / fixedTileSize.height).rounded(.up))
+                effectiveTileSize = fixedTileSize
+            }
             
-            // the polygon points will be located on a circle - hence the radius calculation
-            // this radius calculation also takes into account the border width which gets
-            // added on the outside of the shape
-            let radius = min(boundingRect.width, boundingRect.height) / 2.0 - borderWidth / 2.0
+            //at this point we determined how many rows and columns we would need to tile
+             
             
-            drawDashes(rect: boundingRect, center: centerPoint, radius: radius, context: context)
-            
-            let scaledPolygonPath = path(in: boundingRect)
-            context.stroke(scaledPolygonPath, with: .color(borderColor), style: StrokeStyle(lineWidth: borderWidth))
-            context.fill(scaledPolygonPath, with: .color(fillColor))
+            for eachLine in 0..<numberOfHorizontalTiles {
+                //when eachLine is 0, we are tiling the first row on the top
+                for eachColumn in 0..<numberOfVerticalTiles {
+                    //when eachColumn is 0, we are tiling the first column on the top
+                    
+                    let tileXOffset: CGFloat
+                    let tileYOffset: CGFloat
+                    if let validTiling = tiling {
+                        tileXOffset = CGFloat(eachLine) * (effectiveTileSize.width + validTiling.interTilingSpace)
+                        tileYOffset = CGFloat(eachColumn) * (effectiveTileSize.height + validTiling.interTilingSpace)
+                    } else {
+                        tileXOffset = CGFloat(eachLine) * effectiveTileSize.width
+                        tileYOffset = CGFloat(eachColumn) * effectiveTileSize.height
+                    }
+                    
+                    let boundingRect = CGRect(origin: CGPoint(x: tileXOffset, y: tileYOffset), size: effectiveTileSize)
+                    
+                    // we need to calculate the middle point of our frame
+                    // we will use this center as an anchor to draw our polygon
+                    let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
+                    
+                    // the polygon points will be located on a circle - hence the radius calculation
+                    // this radius calculation also takes into account the border width which gets
+                    // added on the outside of the shape
+                    let radius = min(boundingRect.width, boundingRect.height) / 2.0
+                    
+                    let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+                    
+                    let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
+      
+                    context.stroke(scaledPolygonPath, with: .color(borderColor), style: StrokeStyle(lineWidth: borderWidth))
+                    context.fill(scaledPolygonPath, with: .color(fillColor))
+                }
+            }
         }
-    }
-    
-    public func path(in rect: CGRect) -> Path {
-        // we need to calculate the middle point of our frame
-        // we will use this center as an anchor to draw our polygon
-        let centerPoint = CGPoint(x: rect.midX, y: rect.midY)
-        
-        // the polygon points will be located on a circle - hence the radius calculation
-        // this radius calculation also takes into account the border width which gets
-        // added on the outside of the shape
-        let radius = min(rect.width, rect.height) / 2.0 - borderWidth / 2.0
-        
-        let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
-        let scaledPolygonPath = scale(originalPath: initialPath, rect: rect, originalCenter: centerPoint, reCenter: true)
-        return scaledPolygonPath
     }
     
     /// given a center point and radius, it creates a bezier path for an equilateral Polygon
@@ -112,19 +146,11 @@ public struct Polygon: Shape {
         return polygonPath
     }
     
-    private func drawDashes(rect: CGRect, center: CGPoint, radius: CGFloat, context: GraphicsContext) {
-        if showDashes {
-            var dashedCirclePath = Path()
-            dashedCirclePath.addArc(center: center, radius: radius, startAngle: Angle.zero, endAngle: Angle(degrees: 360), clockwise: true)
-            context.stroke(dashedCirclePath, with: .color(.black), style: StrokeStyle(lineWidth: 1.5, dash: [4, 8], dashPhase: 0))
-        }
-    }
-    
     private func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = originalPath.boundingRect
-        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * borderWidth)
-        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height + 2 * borderWidth)
+        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + borderWidth)
+        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height + borderWidth)
         let finalScaleFactor = min(scaleFactorX, scaleFactorY)
         
         if abs(finalScaleFactor - 1.0) < 0.001 {
@@ -153,18 +179,13 @@ public struct Polygon: Shape {
 
 #Preview {
     let lightGray = Color(white: 0.85)
-    let hStack = HStack(spacing: 20, content: {
-      Polygon(numberOfSides: 3, fillColor: .blue, rotationAngle: Angle(degrees: 30))
+    let tiledPolygon = TiledPolygon(numberOfSides: 4,
+                                    fillColor: .blue,
+                                    rotationAngle: Angle(degrees: 45),
+                                    borderWidth: 1,
+                                    borderColor: .black,
+                                    tiling: Tiling(numberOfHorizontalTiles: 7, interTilingSpace: 0))
         .background(lightGray)
-      Polygon(numberOfSides: 4, fillColor: .blue, rotationAngle: Angle(degrees: 45))
-        .background(lightGray)
-      Polygon(numberOfSides: 5, fillColor: .blue, rotationAngle: Angle(degrees: -18))
-        .background(lightGray)
-      Polygon(numberOfSides: 6, fillColor: .blue, rotationAngle: Angle(degrees: 0))
-        .background(lightGray)
-    })
-    .frame(maxHeight: 360)
-    .padding()
-    
-    return hStack
+        .padding()
+    return tiledPolygon
 }
