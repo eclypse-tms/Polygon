@@ -50,11 +50,13 @@ Add Polygon to your project via Swift Package Manager.
 
 `https://github.com/eclypse-tms/Polygon`
 
+
 ### Manually
 Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/Sources/Polygon) into your project.
 
 
-
+## Breaking Change with version 2
+Since we added support for SwiftUI, previously named `Polygon` class has been renamed to `UIPolygon` to follow the UIKit's convention. The class name `Polygon` is now used for SwiftUI variation.
 
 ## Animatable Polygon Variation for UIKit
 
