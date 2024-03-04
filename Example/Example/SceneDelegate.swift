@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  Example
 //
-//  Created by Nessa Kucuk, Turker on 2/22/24.
+//  Created by eclypse on 2/22/24.
 //
 
 import UIKit
