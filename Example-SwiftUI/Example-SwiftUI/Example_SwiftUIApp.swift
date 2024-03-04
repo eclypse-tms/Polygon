@@ -2,7 +2,7 @@
 //  Example_SwiftUIApp.swift
 //  Example-SwiftUI
 //
-//  Created by Nessa Kucuk, Turker on 3/2/24.
+//  Created by eclypse on 3/2/24.
 //
 
 import SwiftUI
