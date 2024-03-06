@@ -55,19 +55,20 @@ public struct TiledPolygon: View {
     @inlinable public func fixedTileSize(_ size: CGSize) -> TiledPolygon {
         var newCopy = self
         newCopy._fixedTileSize = size
-        newCopy._flexibleTiling = nil
+        newCopy._numberOfHorizontalTiles = nil
         return newCopy
     }
     
     @usableFromInline 
-    internal var _flexibleTiling: CGFloat?
+    internal var _numberOfHorizontalTiles: CGFloat?
     /// indicates the number of tiles that should be placed horizontally.
     /// this number also dictates how many tiles can be placed vertically
     /// depending on how many you can fit horizontally.
-    @inlinable 
-    public func flexibleTiling(_ flexibleTiling: CGFloat) -> TiledPolygon {
+    /// when you set this number, tile size is derived from the available horizontal space.
+    @inlinable
+    public func numberOfHorizontalTiles(_ flexibleTiling: CGFloat) -> TiledPolygon {
         var newCopy = self
-        newCopy._flexibleTiling = flexibleTiling
+        newCopy._numberOfHorizontalTiles = flexibleTiling
         return newCopy
     }
     
@@ -84,27 +85,27 @@ public struct TiledPolygon: View {
             let numberOfHorizontalTiles: Int
             let effectiveTileSize: CGSize
             
-            if let validFlexibleTiling = _flexibleTiling {
+            if let validFlexibleTiling = _numberOfHorizontalTiles {
                 numberOfVerticalTiles = Int(validFlexibleTiling.rounded(.up))
-                let canvasSizeAfterInterTilingGapIsApplied = canvasSize.width - (CGFloat(numberOfVerticalTiles - 1) * _interTileSpacing)
+                let canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - (CGFloat(numberOfVerticalTiles - 1) * _interTileSpacing)
                 let widthOfEachTile: CGFloat
                 let heightOfEachTile: CGFloat
                 
                 switch _kind {
                 case .equilateralTriangle:
-                    widthOfEachTile = canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling
+                    widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / validFlexibleTiling
                     let angle = Angle(degrees: (90 - _rotationAngle.degrees)).radians
                     heightOfEachTile = widthOfEachTile * sin(angle)
                     
                 case .square:
-                    widthOfEachTile = canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling
+                    widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / validFlexibleTiling
                     heightOfEachTile = widthOfEachTile
                 case .hexagon:
                     // because tiled hexagons are staggered, each hexagon takes 75 % of the space
                     // that a square would have taken. 75 % figure can be calculted by trigonometry.
                     // for this reason, we need to account for this in this calculation
                     // formula (after simplification) ->
-                    widthOfEachTile = (4 * canvasSizeAfterInterTilingGapIsApplied)/(3 * validFlexibleTiling + 1)  //((canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling) * (4/3))
+                    widthOfEachTile = (4 * canvasWidthAfterInterTilingGapIsApplied)/(3 * validFlexibleTiling + 1)  //((canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling) * (4/3))
                     
                     // because this is a hexagon, height of each tile is square root 3 x of width
                     heightOfEachTile = widthOfEachTile * sin(Angle(degrees: 60).radians)
@@ -113,13 +114,29 @@ public struct TiledPolygon: View {
                 numberOfHorizontalTiles = Int((canvasSize.height / heightOfEachTile).rounded(.up))
                 effectiveTileSize = CGSize(width: widthOfEachTile,height: heightOfEachTile)
             } else {
-                numberOfVerticalTiles = Int((canvasSize.width / _fixedTileSize.width).rounded(.up))
-                numberOfHorizontalTiles = Int((canvasSize.height / _fixedTileSize.height).rounded(.up))
-                effectiveTileSize = _fixedTileSize
+                switch _kind {
+                case .equilateralTriangle:
+                    numberOfVerticalTiles = Int((canvasSize.width / _fixedTileSize.width).rounded(.up))
+                    numberOfHorizontalTiles = Int((canvasSize.height / _fixedTileSize.height).rounded(.up))
+                    effectiveTileSize = _fixedTileSize
+                case .square:
+                    numberOfVerticalTiles = Int((canvasSize.width  / _fixedTileSize.width).rounded(.up))
+                    numberOfHorizontalTiles = Int((canvasSize.height / _fixedTileSize.height).rounded(.up))
+                    effectiveTileSize = _fixedTileSize
+                case .hexagon:
+                    
+                    // when we have a fixed tile size each hexagon will take 75% of the provided width
+                    // due to hexagon staggering. plus the inter tiling space
+                    let approximateTileWidth = (_fixedTileSize.width * 0.75) + _interTileSpacing
+                    numberOfVerticalTiles = Int((canvasSize.width / approximateTileWidth).rounded(.up))
+                    
+                    let approximateTileHeight = _fixedTileSize.width * sin(Angle(degrees: 60).radians)
+                    numberOfHorizontalTiles = Int(approximateTileHeight.rounded(.up))
+                    effectiveTileSize = CGSize(width: _fixedTileSize.width, height: approximateTileHeight)
+                }
             }
             
             // triangles and hexagons require additional tiling around the edges
-            
             let rowLowerBound: Int
             let rowUpperBound: Int
             let columnLowerBound: Int
@@ -175,7 +192,6 @@ public struct TiledPolygon: View {
                             //even indexes we will tile them where they normally go
                             tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing)
                         }
-                        
                     }
                     
                     
@@ -258,9 +274,10 @@ public struct TiledPolygon: View {
 #Preview {
     let backgroundColor = Color(white: 0.85)
     let tiledPolygon = TiledPolygon()
-        .kind(.hexagon)
-        .interTileSpacing(2)
-        .flexibleTiling(11)
+        .kind(.square)
+        .interTileSpacing(1)
+        .fixedTileSize(CGSize(width: 36, height: 36))
+        //.numberOfHorizontalTiles(20)
         .background(backgroundColor)
         .padding()
     return tiledPolygon
