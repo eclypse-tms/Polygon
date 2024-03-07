@@ -55,20 +55,20 @@ public struct TiledPolygon: View {
     @inlinable public func fixedTileSize(_ size: CGSize) -> TiledPolygon {
         var newCopy = self
         newCopy._fixedTileSize = size
-        newCopy._numberOfHorizontalTiles = nil
+        newCopy._numberOfHorizontallyTiledPolygons = nil
         return newCopy
     }
     
     @usableFromInline 
-    internal var _numberOfHorizontalTiles: CGFloat?
+    internal var _numberOfHorizontallyTiledPolygons: CGFloat?
     /// indicates the number of tiles that should be placed horizontally.
     /// this number also dictates how many tiles can be placed vertically
     /// depending on how many you can fit horizontally.
     /// when you set this number, tile size is derived from the available horizontal space.
     @inlinable
-    public func numberOfHorizontalTiles(_ flexibleTiling: CGFloat) -> TiledPolygon {
+    public func numberOfHorizontallyTiledPolygons(_ number: CGFloat) -> TiledPolygon {
         var newCopy = self
-        newCopy._numberOfHorizontalTiles = flexibleTiling
+        newCopy._numberOfHorizontallyTiledPolygons = number
         return newCopy
     }
     
@@ -79,33 +79,57 @@ public struct TiledPolygon: View {
     public var body: some View {
         Canvas { context, canvasSize in
             //first calculate how many tiles would fit the canvas size
-            //if we have horizontal/vertical tiling information use that, otherwise,
+            //if we have vertical tiling information use that, otherwise,
             //use the fixed tile size instead
             let numberOfVerticalTiles: Int
             let numberOfHorizontalTiles: Int
             let effectiveTileSize: CGSize
             
-            if let validFlexibleTiling = _numberOfHorizontalTiles {
-                numberOfVerticalTiles = Int(validFlexibleTiling.rounded(.up))
-                let canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - (CGFloat(numberOfVerticalTiles - 1) * _interTileSpacing)
+            if let validNumberOfHorizontalPolygons = _numberOfHorizontallyTiledPolygons {
+                //
+                numberOfVerticalTiles = Int(validNumberOfHorizontalPolygons.rounded(.up))
+                
+                // this is the left over width once the inter tile space is subtracted from the canvas
+                // it is calculated differently depending on the shape of the polygon
+                // for example, if _numberOfHorizontallyTiledPolygons is 10, then you will 9 inter-tiling
+                // gaps you have to fill for squares and hexagons
+                // on the other hand, if you are tiling triangles, the number of spaces will be 5 because
+                // when you are tiling triangles, the next triangle is tiled upside-down.
+                let canvasWidthAfterInterTilingGapIsApplied: CGFloat
+                switch _kind {
+                case .equilateralTriangle:
+                    canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - ((CGFloat(numberOfVerticalTiles) * _interTileSpacing)) + (CGFloat(numberOfVerticalTiles) / 2.0)
+                case .square, .hexagon:
+                    canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - ((CGFloat(numberOfVerticalTiles) * _interTileSpacing))
+                }
+                
                 let widthOfEachTile: CGFloat
                 let heightOfEachTile: CGFloat
                 
                 switch _kind {
                 case .equilateralTriangle:
-                    widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / validFlexibleTiling
-                    let angle = Angle(degrees: (90 - _rotationAngle.degrees)).radians
-                    heightOfEachTile = widthOfEachTile * sin(angle)
+                    // because tiled triangles are STAGGERED, the width of tiled triangles
+                    // depend on how many there are. for example: 
+                    // if you tile 3 triangles side by side, then width of each triangle is (screen width - 1) / 2
+                    // if you tile 4 triangles side by side, then width of each triangle is (screen width - 2) / 2.5
+                    // if you tile 5 triangles side by side, then width of each triangle is (screen width - 2) / 3
+                    // therefore, the width of each tile is (screen width - (number of triangles / 2).roundDown()) / ((number of triangles / 2) + 0.5)
+                    widthOfEachTile = (canvasWidthAfterInterTilingGapIsApplied - (validNumberOfHorizontalPolygons / 2.0).rounded(.down)) / ((validNumberOfHorizontalPolygons / 2) + 0.5)
+                    
+                    // because this is a triangle, in order to have a fitting frame, we need to calculate 
+                    // the fitting height for the given width.
+                    heightOfEachTile = widthOfEachTile * sin(Angle(degrees: (60)).radians)
                     
                 case .square:
-                    widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / validFlexibleTiling
+                    widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / validNumberOfHorizontalPolygons
                     heightOfEachTile = widthOfEachTile
                 case .hexagon:
-                    // because tiled hexagons are staggered, each hexagon takes 75 % of the space
+                    // because tiled hexagons are STAGGERED, each hexagon takes 75 % of the space
                     // that a square would have taken. 75 % figure can be calculted by trigonometry.
-                    // for this reason, we need to account for this in this calculation
+                    // for this reason, we need to account for this in this in our calculations
+                    // space the hexagons accordingly
                     // formula (after simplification) ->
-                    widthOfEachTile = (4 * canvasWidthAfterInterTilingGapIsApplied)/(3 * validFlexibleTiling + 1)  //((canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling) * (4/3))
+                    widthOfEachTile = (4 * canvasWidthAfterInterTilingGapIsApplied)/(3 * validNumberOfHorizontalPolygons + 1)  //((canvasSizeAfterInterTilingGapIsApplied / validFlexibleTiling) * (4/3))
                     
                     // because this is a hexagon, height of each tile is square root 3 x of width
                     heightOfEachTile = widthOfEachTile * sin(Angle(degrees: 60).radians)
@@ -144,11 +168,11 @@ public struct TiledPolygon: View {
             
             switch _kind {
             case .equilateralTriangle:
-                // doesn't require additional padding
+                // requires additional padding for columns only
                 rowLowerBound = 0
                 rowUpperBound = numberOfHorizontalTiles
-                columnLowerBound = 0
-                columnUpperBound = numberOfVerticalTiles
+                columnLowerBound = -1
+                columnUpperBound = numberOfVerticalTiles + 1
             case .square:
                 // doesn't require additional padding
                 rowLowerBound = 0
@@ -165,6 +189,7 @@ public struct TiledPolygon: View {
                 columnUpperBound = numberOfVerticalTiles + 1
             }
             
+            let paddingAroundTheEdges = (_interTileSpacing / 2.0)
             
             //at this point we determined how many rows and columns we would need to tile
             //now we need to iterate over the rows and columns
@@ -177,20 +202,29 @@ public struct TiledPolygon: View {
                     let tileXOffset: CGFloat
                     let tileYOffset: CGFloat
                     
+                    // for triangles and hexagons, we need to performs translation and rotation
+                    // for this reason, we need to know whether we are processing the odd column at the moment
+                    let isProcessingOddColumn = tileX.isOdd()
+                    
                     switch _kind {
                     case .equilateralTriangle:
-                        tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing)
-                        tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing)
+                        if tileX == 0 {
+                            tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing) - (CGFloat(tileX) * (effectiveTileSize.width / 2)) + paddingAroundTheEdges
+                        } else {
+                            tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing) - (CGFloat(tileX) * (effectiveTileSize.width / 2)) + paddingAroundTheEdges
+                        }
+                        
+                        tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing) + paddingAroundTheEdges
                     case .square:
-                        tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing)
-                        tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing)
+                        tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing) + paddingAroundTheEdges
+                        tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing) + paddingAroundTheEdges
                     case .hexagon:
-                        tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing) - (CGFloat(tileX) * (effectiveTileSize.width / 4))
-                        if tileX % 2 == 1 || tileX % 2 == -1 {
-                            tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing) + effectiveTileSize.height / 2
+                        tileXOffset = CGFloat(tileX) * (effectiveTileSize.width + _interTileSpacing) - (CGFloat(tileX) * (effectiveTileSize.width / 4)) + paddingAroundTheEdges
+                        if isProcessingOddColumn {
+                            tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing) + ((effectiveTileSize.height / 2.0) + (paddingAroundTheEdges * 2))
                         } else {
                             //even indexes we will tile them where they normally go
-                            tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing)
+                            tileYOffset = CGFloat(tileY) * (effectiveTileSize.height + _interTileSpacing) + paddingAroundTheEdges
                         }
                     }
                     
@@ -206,7 +240,18 @@ public struct TiledPolygon: View {
                     // added on the outside of the shape
                     let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
                     
-                    let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+                    var rotation: Angle?
+                    switch _kind {
+                    case .equilateralTriangle:
+                        if isProcessingOddColumn {
+                            rotation = Angle(radians: .pi)
+                        }
+                    default:
+                        // other shapes do not need additional rotation
+                        break
+                    }
+                    
+                    let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius, additionalRotation: rotation)
                     
                     let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
       
@@ -217,7 +262,7 @@ public struct TiledPolygon: View {
     }
     
     /// given a center point and radius, it creates a bezier path for an equilateral Polygon
-    private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat) -> Path {
+    private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat, additionalRotation: Angle? = nil) -> Path {
         // this is the slice we have to traverse for each side of the polygon
         let angleSliceFromCenter = 2 * .pi / CGFloat(_kind.numberOfSides)
         
@@ -227,7 +272,7 @@ public struct TiledPolygon: View {
         var polygonPath = Path()
         for i in 0..<_kind.numberOfSides {
             let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
-            let rotatedAngleFromCenter = currentAngleFromCenter + _rotationAngle.radians
+            let rotatedAngleFromCenter = currentAngleFromCenter + _rotationAngle.radians + (additionalRotation ?? Angle.zero).radians
             let x = centerPoint.x + radius * cos(rotatedAngleFromCenter)
             let y = centerPoint.y + radius * sin(rotatedAngleFromCenter)
             if i == 0 {
@@ -274,10 +319,10 @@ public struct TiledPolygon: View {
 #Preview {
     let backgroundColor = Color(white: 0.85)
     let tiledPolygon = TiledPolygon()
-        .kind(.square)
+        .kind(.equilateralTriangle)
         .interTileSpacing(1)
-        .fixedTileSize(CGSize(width: 36, height: 36))
-        //.numberOfHorizontalTiles(20)
+        .fixedTileSize(CGSize(width: 54, height: 25))
+        //.numberOfHorizontallyTiledPolygons(31)
         .background(backgroundColor)
         .padding()
     return tiledPolygon

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public enum TilablePolygonKind: Int {
+public enum TilablePolygonKind {
     case equilateralTriangle
     case square
     case hexagon
