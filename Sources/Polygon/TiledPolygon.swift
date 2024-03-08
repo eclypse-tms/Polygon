@@ -168,40 +168,15 @@ public struct TiledPolygon: View {
                 }
             }
             
-            // triangles and hexagons require additional tiling around the edges
-            let rowLowerBound: Int
-            let rowUpperBound: Int
-            let columnLowerBound: Int
-            let columnUpperBound: Int
+            // due to staggering effect, we need to tile around the edges of the canvas
+            // for this reason our lower bounds start at -1
+            // and upper bounds end at numberOfTileableColumns + 1
+            let rowLowerBound = -1
+            let rowUpperBound = numberOfTileableRows + 1
+            let columnLowerBound = -1
+            let columnUpperBound = numberOfTileableColumns + 1
             
-            switch _kind {
-            case is EquilateralTriangle:
-                // requires additional padding for columns only
-                rowLowerBound = -1
-                rowUpperBound = numberOfTileableRows
-                columnLowerBound = -1
-                columnUpperBound = numberOfTileableColumns + 1
-            case is Square:
-                // doesn't require additional padding
-                rowLowerBound = 0
-                rowUpperBound = numberOfTileableRows
-                columnLowerBound = 0
-                columnUpperBound = numberOfTileableColumns
-            case is Hexagon:
-                // we need hexagons in the -1th row and n+1th row to fill in the tiling gaps around the edges
-                rowLowerBound = -1
-                rowUpperBound = numberOfTileableRows
-                
-                // we need hexagons in the -1th and n+1th columns to fill in the tiling gaps
-                columnLowerBound = -1
-                columnUpperBound = numberOfTileableColumns + 1
-            default:
-                rowLowerBound = 0
-                rowUpperBound = numberOfTileableRows
-                columnLowerBound = 0
-                columnUpperBound = numberOfTileableColumns
-            }
-            
+            // apply half of the inter tile spacing around the edges to make it look right
             let paddingAroundTheEdges = CGFloat(_interTileSpacing / 2.0)
             
             //at this point we determined how many rows and columns we would need to tile
@@ -382,8 +357,8 @@ public struct TiledPolygon: View {
 #Preview {
     let backgroundColor = Color(white: 0.85)
     let tiledPolygon = TiledPolygon()
-        .kind(EquilateralTriangle(yAxisStagger: 12))
-        .interTileSpacing(2)
+        .kind(Square())
+        .interTileSpacing(3)
         .polygonSize(TilablePolygonSize(fixedWidth: 60))
         .background(backgroundColor)
         .padding(0)
