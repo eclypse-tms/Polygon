@@ -9,9 +9,43 @@ import SwiftUI
 import Polygon
 
 struct ContentView: View {
+    @State private var selectedRenderType = 0
     let lightGray = Color(white: 0.85)
+    
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
+        VStack(alignment: .center, spacing: 24) {
+            Picker("", selection: $selectedRenderType, content: {
+                Text("Individual Polygons").tag(0)
+                Text("Tiled Polygons").tag(1)
+            })
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 300)
+            
+            if selectedRenderType == 0 {
+                individualPolygons()
+            } else {
+                tiledPolygons()
+            }
+            
+        }.padding()
+    }
+    
+    private func tiledPolygons() -> some View {
+        let backgroundColor = Color(white: 0.85) //light gray
+        
+        // configure the polygon
+        let tiledPolygon = TiledPolygon()
+            .kind(Hexagon())
+            .interTileSpacing(4)
+            .polygonSize(TilablePolygonSize(fixedWidth: 80))
+            .background(backgroundColor)
+            .padding(0)
+        
+        return tiledPolygon
+    }
+    
+    private func individualPolygons() -> some View {
+        VStack(alignment: .center, spacing: 8) {
             Spacer()
             HStack {
                 Polygon(numberOfSides: 3, rotationAngle: Angle(degrees: 30))
