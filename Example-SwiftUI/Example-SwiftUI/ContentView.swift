@@ -26,8 +26,7 @@ struct ContentView: View {
             } else {
                 tiledPolygons()
             }
-            
-        }.padding()
+        }
     }
     
     private func tiledPolygons() -> some View {
@@ -35,11 +34,11 @@ struct ContentView: View {
         
         // configure the polygon
         let tiledPolygon = TiledPolygon()
-            .kind(Hexagon())
+            .kind(Square(yAxisStagger: 10))
             .interTileSpacing(4)
-            .polygonSize(TilablePolygonSize(fixedWidth: 80))
+            .fillColorPattern([Color.red, Color.green, Color.blue, Color.purple])
+            .polygonSize(TilablePolygonSize(horizontalPolygonTarget: 13))
             .background(backgroundColor)
-            .padding(0)
         
         return tiledPolygon
     }
@@ -80,7 +79,7 @@ struct ContentView: View {
                     .background(lightGray)
             }.frame(maxHeight: 240)
             Spacer()
-        }.padding()
+        }
     }
 }
 

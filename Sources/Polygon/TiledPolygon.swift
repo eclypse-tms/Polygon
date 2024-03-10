@@ -101,15 +101,15 @@ public struct TiledPolygon: View {
                 effectiveTileSize = deducedSize.effectiveTileSize
             }
             
-            // due to staggering effect, we need to tile around the edges of the canvas
-            // for this reason our lower bounds start at -1
+            // due to staggering effect, we might need to tile around the edges of the canvas
+            // for this reason the lower bound may start at -1
             // and upper bounds end at numberOfTileableColumns + 1
-            let rowLowerBound = 0
+            let rowLowerBound = -1
             let rowUpperBound = numberOfTileableRows + 1
             let columnLowerBound = -1
             let columnUpperBound = numberOfTileableColumns + 1
             
-            var loopCounter = -1
+            var colorAssignment = -1
             
             //at this point we determined how many rows and columns we would need to tile
             //now we need to iterate over the rows and columns
@@ -119,113 +119,71 @@ public struct TiledPolygon: View {
                 //when tileY is zero, we are referring to the first row of shapes
                 //therefore, when tileX = 2
                 for tileY in rowLowerBound..<rowUpperBound {
-                    loopCounter += 1
+                    
                     
                     // calculate the layout metrics of each tile
                     let layoutMetrics = performLayout(tileX: tileX, tileY: tileY, tileSize: effectiveTileSize)
                     
-                    // apply out of bounds correction if necessary
-                    let boundingRect = outOfBoundsCorrectionIfNecessary(canvasSize: canvasSize,
-                                                       individualTileSize: effectiveTileSize,
-                                                       currentOffset: CGPoint(x: layoutMetrics.tileXOffset, y: layoutMetrics.tileYOffset),
-                                                       requestedStaggerEffect: layoutMetrics.appliedStaggerEffect,
-                                                       numberOfTileableRows: numberOfTileableRows,
-                                                       polygonKind: _kind)
+                    let boundingRect = CGRect(origin: CGPoint(x: layoutMetrics.tileXOffset, y: layoutMetrics.tileYOffset), size: effectiveTileSize)
+
                     
-                    // we need to calculate the middle point of our frame
-                    // we will use this center as an anchor to draw our polygon
-                    let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
+                    // because we always draw an extra polygon at end each column
+                    // there will be some instances, where that extra polygon is not needed
+                    // this is especially true for the first column because there is no staggering
+                    // applied. for this reason, even after bounding rectangle correction, this
+                    // polygon might be still out of bounds
                     
-                    // the polygon points will be located on a circle - hence the radius calculation
-                    // this radius calculation also takes into account the border width which gets
-                    // added on the outside of the shape
-                    let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
-                    var finalShapeRotation = Angle(radians: layoutMetrics.initialShapeRotation)
-                    switch _kind {
-                    case is EquilateralTriangle:
-                        if tileX.isOdd() {
-                            //we need to reverse the rotation 180 degrees when
-                            finalShapeRotation = Angle(radians: layoutMetrics.initialShapeRotation + Double.pi)
+                    /*
+                    let isNorthOfScreen = boundingRect.maxY < 0.0
+                    let isSouthOfScreen = boundingRect.origin.y > canvasSize.height
+                    let isWestOfScreen = boundingRect.maxX < 0.0
+                    let isOutOfBounds = isSouthOfScreen || isNorthOfScreen || isWestOfScreen
+                    */
+                    let canvasRect = CGRect(origin: .zero, size: canvasSize)
+                    let isOutOfBounds = !canvasRect.intersects(boundingRect)
+                    if isOutOfBounds {
+                        // there is no intersection, let's bail
+                        continue
+                    } else {
+                        colorAssignment += 1
+                        
+                        // we need to calculate the middle point of our frame
+                        // we will use this center as an anchor to draw our polygon
+                        let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
+                        
+                        // the polygon points will be located on a circle - hence the radius calculation
+                        // this radius calculation also takes into account the border width which gets
+                        // added on the outside of the shape
+                        let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
+                        var finalShapeRotation = Angle(radians: layoutMetrics.initialShapeRotation)
+                        switch _kind {
+                        case is EquilateralTriangle:
+                            if tileX.isOdd() {
+                                //we need to reverse the rotation 180 degrees when
+                                finalShapeRotation = Angle(radians: layoutMetrics.initialShapeRotation + Double.pi)
+                            }
+                        default:
+                            // other shapes do not need additional rotation
+                            break
                         }
-                    default:
-                        // other shapes do not need additional rotation
-                        break
+                        
+                        let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius, initialRotation: finalShapeRotation)
+                        
+                        let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
+                        
+                        // because we start tiling -1 column first, we need to adjust the loop counter
+                        // so that first visible polygon on the upper left corner is the first color in
+                        // our color palette
+                        if boundingRect.minY < 0 {
+                            colorAssignment -= 1
+                        }
+                        var colorMod = (colorAssignment % _fillColorPattern.count)
+                        if colorMod < 0 {
+                            colorMod = (_fillColorPattern.count + colorMod) % _fillColorPattern.count
+                        }
+                        context.fill(scaledPolygonPath, with: .color(_fillColorPattern[colorMod]))
                     }
-                    
-                    let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius, initialRotation: finalShapeRotation)
-                    
-                    let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
-      
-                    let colorMod = loopCounter % _fillColorPattern.count
-                    
-                    context.fill(scaledPolygonPath, with: .color(_fillColorPattern[colorMod]))
                 }
-            }
-        }
-    }
-    
-    /// given a center point and radius, it creates a bezier path for an equilateral Polygon
-    private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat, initialRotation: Angle? = nil) -> Path {
-        // this is the slice we have to traverse for each side of the polygon
-        let numberOfSides: Int
-        switch _kind {
-        case let shape as EquilateralTriangle:
-            numberOfSides = shape.numberOfSides
-        case let shape as Square:
-            numberOfSides = shape.numberOfSides
-        case let shape as Hexagon:
-            numberOfSides = shape.numberOfSides
-        default:
-            numberOfSides = 4
-        }
-        let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
-        
-        
-        // iterate over the sides of the polygon and collect each point on the circle
-        // where the polygon corner should be
-        var polygonPath = Path()
-        for i in 0..<numberOfSides {
-            let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
-            let rotatedAngleFromCenter = currentAngleFromCenter + _rotationAngle.radians + (initialRotation ?? Angle.zero).radians
-            let x = centerPoint.x + radius * cos(rotatedAngleFromCenter)
-            let y = centerPoint.y + radius * sin(rotatedAngleFromCenter)
-            if i == 0 {
-                polygonPath.move(to: CGPoint(x: x, y: y))
-            } else {
-                polygonPath.addLine(to: CGPoint(x: x, y: y))
-            }
-        }
-        polygonPath.closeSubpath()
-        return polygonPath
-    }
-    
-    /// scales the original path so that at least 2 corners of the polygon touches the edge of the frame
-    private func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
-        // 1. calculate the scaling factor to touch all the edges
-        let boundingRectOfRotatedPath = originalPath.boundingRect
-        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width)
-        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height)
-        let finalScaleFactor = min(scaleFactorX, scaleFactorY)
-        
-        if abs(finalScaleFactor - 1.0) < 0.000001 {
-            // either the height or width of the shape is already at it max
-            // the shape cannot be scaled any further
-            return originalPath
-        } else {
-            // scale the shape based on the calculated scale factor
-            let scaledAffineTransform = CGAffineTransform(scaleX: finalScaleFactor, y: finalScaleFactor)
-            let scaledNonCenteredPath = originalPath.transform(scaledAffineTransform).path(in: rect)
-            
-            if reCenter {
-                // scaling operation happens with respect to the origin/anchor point
-                // as a result, scaling the polygon will shift its center
-                // we need to bring the shape back to the original rectangle's center
-                let centerAfterScaling = CGPoint(x: scaledNonCenteredPath.boundingRect.midX, y: scaledNonCenteredPath.boundingRect.midY)
-                let recenteredAffineTransfor = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
-                return scaledNonCenteredPath.transform(recenteredAffineTransfor).path(in: rect)
-            } else {
-                // we don't need to recenter, we are done!
-                return scaledNonCenteredPath
             }
         }
     }
@@ -282,13 +240,12 @@ public struct TiledPolygon: View {
             appliedStaggerValue = aSquare.staggerEffect
             let staggerOffsetPerColumn = (CGFloat(tileX) * appliedStaggerValue)
             
-            tileXOffset = CGFloat(tileX) * (tileSize.width + _interTileSpacing) + paddingAroundTheEdges
+            let totalModulus = tileSize.height + _interTileSpacing
+            let modulatedStaggerOffset = staggerOffsetPerColumn.remainder(dividingBy: totalModulus) - (totalModulus)
             
-            if tileX == 1 {
-                tileYOffset = CGFloat(tileY) * (tileSize.height + _interTileSpacing) + paddingAroundTheEdges + staggerOffsetPerColumn - 90
-            } else {
-                tileYOffset = CGFloat(tileY) * (tileSize.height + _interTileSpacing) + paddingAroundTheEdges + staggerOffsetPerColumn
-            }
+            tileXOffset = CGFloat(tileX) * (tileSize.width + _interTileSpacing) + paddingAroundTheEdges
+            tileYOffset = CGFloat(tileY) * (tileSize.height + _interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
+            
         case let hexagon as Hexagon:
             initialShapeRotation = hexagon.initialRotation
             appliedStaggerValue = hexagon.staggerEffect
@@ -330,8 +287,10 @@ public struct TiledPolygon: View {
             switch polygonKind {
             case is EquilateralTriangle:
                 correctedYOffset = requestedStaggerEffect/2.0 - (canvasSize.height + individualTileSize.height)
-            case is Square, is Hexagon:
-                correctedYOffset = currentOffset.y - (CGFloat(numberOfTileableRows) * (individualTileSize.height + _interTileSpacing))
+            case is Square:
+                correctedYOffset = currentOffset.y - (CGFloat(numberOfTileableRows + 1) * (individualTileSize.height + _interTileSpacing))
+            case is Hexagon:
+                correctedYOffset = currentOffset.y - (CGFloat(numberOfTileableRows + 1) * (individualTileSize.height + _interTileSpacing))
             default:
                 correctedYOffset = currentOffset.y
             }
@@ -463,6 +422,72 @@ public struct TiledPolygon: View {
                                      numberOfTileableRows: numberOfTileableRows,
                                      effectiveTileSize: effectiveTileSize)
     }
+    
+    /// given a center point and radius, it creates a bezier path for an equilateral Polygon
+    private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat, initialRotation: Angle? = nil) -> Path {
+        // this is the slice we have to traverse for each side of the polygon
+        let numberOfSides: Int
+        switch _kind {
+        case let shape as EquilateralTriangle:
+            numberOfSides = shape.numberOfSides
+        case let shape as Square:
+            numberOfSides = shape.numberOfSides
+        case let shape as Hexagon:
+            numberOfSides = shape.numberOfSides
+        default:
+            numberOfSides = 4
+        }
+        let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
+        
+        
+        // iterate over the sides of the polygon and collect each point on the circle
+        // where the polygon corner should be
+        var polygonPath = Path()
+        for i in 0..<numberOfSides {
+            let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
+            let rotatedAngleFromCenter = currentAngleFromCenter + _rotationAngle.radians + (initialRotation ?? Angle.zero).radians
+            let x = centerPoint.x + radius * cos(rotatedAngleFromCenter)
+            let y = centerPoint.y + radius * sin(rotatedAngleFromCenter)
+            if i == 0 {
+                polygonPath.move(to: CGPoint(x: x, y: y))
+            } else {
+                polygonPath.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+        polygonPath.closeSubpath()
+        return polygonPath
+    }
+    
+    /// scales the original path so that at least 2 corners of the polygon touches the edge of the frame
+    private func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
+        // 1. calculate the scaling factor to touch all the edges
+        let boundingRectOfRotatedPath = originalPath.boundingRect
+        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width)
+        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height)
+        let finalScaleFactor = min(scaleFactorX, scaleFactorY)
+        
+        if abs(finalScaleFactor - 1.0) < 0.000001 {
+            // either the height or width of the shape is already at it max
+            // the shape cannot be scaled any further
+            return originalPath
+        } else {
+            // scale the shape based on the calculated scale factor
+            let scaledAffineTransform = CGAffineTransform(scaleX: finalScaleFactor, y: finalScaleFactor)
+            let scaledNonCenteredPath = originalPath.transform(scaledAffineTransform).path(in: rect)
+            
+            if reCenter {
+                // scaling operation happens with respect to the origin/anchor point
+                // as a result, scaling the polygon will shift its center
+                // we need to bring the shape back to the original rectangle's center
+                let centerAfterScaling = CGPoint(x: scaledNonCenteredPath.boundingRect.midX, y: scaledNonCenteredPath.boundingRect.midY)
+                let recenteredAffineTransfor = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
+                return scaledNonCenteredPath.transform(recenteredAffineTransfor).path(in: rect)
+            } else {
+                // we don't need to recenter, we are done!
+                return scaledNonCenteredPath
+            }
+        }
+    }
 }
 
 #Preview {
@@ -470,12 +495,12 @@ public struct TiledPolygon: View {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Hexagon())
-        .interTileSpacing(2)
-        .fillColorPattern(Color.magmaColorPalette)
-        .polygonSize(TilablePolygonSize(horizontalPolygonTarget: 14))
+        .kind(Square(yAxisStagger: 30))
+        .interTileSpacing(4)
+        .fillColorPattern(Color.viridisPalette)
+        .polygonSize(TilablePolygonSize(fixedWidth: 92))
         .background(backgroundColor)
-        .padding(16)
+        .padding(0)
     
     return tiledPolygon
 }

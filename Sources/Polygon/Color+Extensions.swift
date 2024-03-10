@@ -38,7 +38,14 @@ public extension Color {
         self.init(red: red, green: green, blue: blue, opacity: alpha)
     }
     
-    static var viridisColorPalette: [Color] {
+    
+    /// Viridis palette is colorblind-friendly, retain representational clarity in greyscale, and are generally aesthetically pleasing.
+    ///
+    /// The matplotlib colormaps introduced in 2015 are widely popular, with implementations of
+    /// the palettes in R, D3js, and others.
+    ///
+    /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
+    static var viridisPalette: [Color] {
         return [Color(hex: "fde725"),
             Color(hex: "a0da39"),
             Color(hex: "4ac16d"),
@@ -50,7 +57,13 @@ public extension Color {
         ]
     }
     
-    static var magmaColorPalette: [Color] {
+    /// Magma palette is colorblind-friendly, retain representational clarity in greyscale, and are generally aesthetically pleasing.
+    ///
+    /// The matplotlib colormaps introduced in 2015 are widely popular, with implementations of
+    /// the palettes in R, D3js, and others.
+    ///
+    /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
+    static var magmaPalette: [Color] {
         return [Color(hex: "fcfdbf"),
             Color(hex: "febb81"),
             Color(hex: "f8765c"),
@@ -62,7 +75,14 @@ public extension Color {
         ]
     }
     
-    static var infernoColorPalette: [Color] {
+    
+    /// Inferno palette is colorblind-friendly, retain representational clarity in greyscale, and are generally aesthetically pleasing.
+    ///
+    /// The matplotlib colormaps introduced in 2015 are widely popular, with implementations of
+    /// the palettes in R, D3js, and others.
+    ///
+    /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
+    static var infernoPalette: [Color] {
         return [Color(hex: "fcffa4"),
             Color(hex: "fac228"),
             Color(hex: "f57d15"),
@@ -74,7 +94,13 @@ public extension Color {
         ]
     }
     
-    var plasmaColorPalette: [Color] {
+    /// Plasma palette is colorblind-friendly, retain representational clarity in greyscale, and are generally aesthetically pleasing.
+    ///
+    /// The matplotlib colormaps introduced in 2015 are widely popular, with implementations of
+    /// the palettes in R, D3js, and others.
+    ///
+    /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
+    var plasmaPalette: [Color] {
         return [Color(hex: "f0f921"),
             Color(hex: "#febd2a"),
             Color(hex: "f48849"),
