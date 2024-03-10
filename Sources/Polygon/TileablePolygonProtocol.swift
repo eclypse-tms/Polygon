@@ -92,6 +92,8 @@ public extension TileablePolygonProtocol {
             numberOfSides = shape.numberOfSides
         case let shape as Hexagon:
             numberOfSides = shape.numberOfSides
+        case let shape as Octagon:
+            numberOfSides = shape.numberOfSides
         default:
             numberOfSides = 4
         }
@@ -153,6 +155,11 @@ public extension TileablePolygonProtocol {
             let tightFittingTileHeight = fixedPolygonWidth * sin(CommonAngle(degrees: 60).radians)
             numberOfTileableRows = Int(tightFittingTileHeight.rounded(.up))
             effectiveTileSize = CGSize(width: fixedPolygonWidth, height: tightFittingTileHeight)
+        case is Octagon:
+            //regular octagons make a square when tiled
+            numberOfTileableColumns = Int((canvasSize.width  / fixedPolygonWidth).rounded(.up))
+            numberOfTileableRows = Int((canvasSize.height / fixedPolygonWidth).rounded(.up))
+            effectiveTileSize = CGSize(width: fixedPolygonWidth, height: fixedPolygonWidth)
         default:
             numberOfTileableColumns = Int((canvasSize.width  / fixedPolygonWidth).rounded(.up))
             numberOfTileableRows = Int((canvasSize.height / fixedPolygonWidth).rounded(.up))
@@ -189,7 +196,7 @@ public extension TileablePolygonProtocol {
         switch polygonKind {
         case is EquilateralTriangle:
             canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - ((CGFloat(numberOfTileableColumns) * interTileSpacing)) + (CGFloat(numberOfTileableColumns) / 2.0)
-        case is Square, is Hexagon:
+        case is Square, is Hexagon, is Octagon:
             canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - ((CGFloat(numberOfTileableColumns) * interTileSpacing))
         default:
             canvasWidthAfterInterTilingGapIsApplied = canvasSize.width - ((CGFloat(numberOfTileableColumns) * interTileSpacing))
@@ -214,7 +221,7 @@ public extension TileablePolygonProtocol {
             // the fitting height for the given width.
             heightOfEachTile = widthOfEachTile * sin(CommonAngle(degrees: (60)).radians)
             
-        case is Square:
+        case is Square, is Octagon:
             widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / targetNumberOfHorizontallyLaidPolygons
             heightOfEachTile = widthOfEachTile
         case is Hexagon:
@@ -291,17 +298,42 @@ public extension TileablePolygonProtocol {
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
             
-        case let hexagon as Hexagon:
-            initialShapeRotation = hexagon.initialRotation
-            appliedStaggerValue = hexagon.staggerEffect
+        case let aHexagon as Hexagon:
+            initialShapeRotation = aHexagon.initialRotation
+            appliedStaggerValue = aHexagon.staggerEffect
             
-            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) - (CGFloat(tileX) * (tileSize.width / 4)) + paddingAroundTheEdges
+            // because a hexagon's base length is half the width of its enclosing square
+            // we need half of that amount in negative offset so that each hexagon fits nicely
+            // in a staggered way
+            let negativeOffsetNeededForGaplessTiling = aHexagon.baseLength(for: tileSize.width) / 2.0
+            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing - negativeOffsetNeededForGaplessTiling) + paddingAroundTheEdges
             if isProcessingOddColumn {
                 tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + ((tileSize.height / 2.0) + (paddingAroundTheEdges * 2))
             } else {
                 //even indexes we will tile them where they normally go
                 tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
             }
+        case let anOctagon as Octagon:
+            initialShapeRotation = anOctagon.initialRotation
+            appliedStaggerValue = anOctagon.staggerEffect
+            let staggerOffsetPerColumn = (CGFloat(tileX) * appliedStaggerValue)
+            
+            let totalModulus = tileSize.height + interTileSpacing
+            let modulatedStaggerOffset = staggerOffsetPerColumn.remainder(dividingBy: totalModulus) - (totalModulus)
+            
+            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
+            tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
+            /*
+            initialShapeRotation = anOctagon.initialRotation
+            appliedStaggerValue = anOctagon.staggerEffect
+            
+            // because a hexagon's base length is half the width of its enclosing square
+            // we need half of that amount in negative offset so that each hexagon fits nicely
+            // in a staggered way
+            let negativeOffsetNeededForGaplessTiling = anOctagon.baseLength(for: tileSize.width) / 2.0
+            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing - negativeOffsetNeededForGaplessTiling) + paddingAroundTheEdges
+            tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
+            */
         default:
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges

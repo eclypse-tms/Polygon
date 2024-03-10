@@ -201,7 +201,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Hexagon())
+        .kind(Octagon(yAxisStagger: 24))
         .interTileSpacing(4)
         .fillColorPattern(Color.viridisPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 92))
