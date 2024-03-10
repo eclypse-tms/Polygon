@@ -22,6 +22,7 @@ open class UIPolygon: UIView, PolygonProtocol {
             setNeedsDisplay()
         }
     }
+    
     @IBInspectable open var borderColor: UIColor = UIColor.black {
         didSet {
             setNeedsDisplay()
@@ -94,10 +95,4 @@ open class UIPolygon: UIView, PolygonProtocol {
         polygonPath.stroke()
     }
 }
-#elseif canImport(AppKit)
-import AppKit
-public protocol UIPolygon {
-    // this class doesn't do anything in AppKit
-}
-
 #endif

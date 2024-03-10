@@ -1,19 +1,19 @@
 //
-//  TilablePolygonKind.swift
+//  TileablePolygonKind.swift
 //
 //
 //  Created by eclypse on 3/4/24.
 //
 
-import SwiftUI
+import Foundation
 
-public protocol TilablePolygonKind {
+public protocol TileablePolygonKind {
     var numberOfSides: Int { get }
-    var initialRotation: Angle { get }
+    var initialRotation: CommonAngle { get }
     var staggerEffect: CGFloat { get }
 }
 
-public struct EquilateralTriangle: TilablePolygonKind {
+public struct EquilateralTriangle: TileablePolygonKind {
     /// triangle has 3 sides. hard coded.
     public let numberOfSides: Int
     
@@ -22,16 +22,16 @@ public struct EquilateralTriangle: TilablePolygonKind {
     public let staggerEffect: CGFloat
     
     /// a rotation of 30 degrees allows the EquilateralTriangle to point upwards
-    public let initialRotation: Angle
+    public let initialRotation: CommonAngle
     
     public init(yAxisStagger: CGFloat = 0, initialRotation: CGFloat = 30) {
         self.staggerEffect = yAxisStagger
-        self.initialRotation = Angle(degrees: initialRotation)
+        self.initialRotation = CommonAngle(degrees: initialRotation)
         self.numberOfSides = 3
     }
 }
 
-public struct Square: TilablePolygonKind {
+public struct Square: TileablePolygonKind {
     /// square has 4 sides. hard coded.
     public let numberOfSides: Int
     
@@ -40,16 +40,16 @@ public struct Square: TilablePolygonKind {
     public let staggerEffect: CGFloat
     
     /// this allows the Square to look like a square as opposed to diamond
-    public let initialRotation: Angle
+    public let initialRotation: CommonAngle
     
     public init(yAxisStagger: CGFloat = 0, initialRotation: CGFloat = 45) {
         self.staggerEffect = yAxisStagger
-        self.initialRotation = Angle(degrees: initialRotation)
+        self.initialRotation = CommonAngle(degrees: initialRotation)
         self.numberOfSides = 4
     }
 }
 
-public struct Hexagon: TilablePolygonKind {
+public struct Hexagon: TileablePolygonKind {
     /// hexagons have 6 sides. hard coded.
     public let numberOfSides: Int
     
@@ -57,11 +57,11 @@ public struct Hexagon: TilablePolygonKind {
     public let staggerEffect: CGFloat
     
     /// hexagon does not need initial rotation to look right
-    public let initialRotation: Angle
+    public let initialRotation: CommonAngle
     
     public init(initialRotation: CGFloat = 0) {
         self.staggerEffect = 0
-        self.initialRotation = Angle(degrees: initialRotation)
+        self.initialRotation = CommonAngle(degrees: initialRotation)
         self.numberOfSides = 6
     }
 }
