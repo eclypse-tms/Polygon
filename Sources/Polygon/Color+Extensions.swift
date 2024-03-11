@@ -100,15 +100,28 @@ public extension Color {
     /// the palettes in R, D3js, and others.
     ///
     /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
-    var plasmaPalette: [Color] {
+    static var plasmaPalette: [Color] {
         return [Color(hex: "f0f921"),
-            Color(hex: "#febd2a"),
+            Color(hex: "febd2a"),
             Color(hex: "f48849"),
             Color(hex: "db5c68"),
             Color(hex: "b83289"),
             Color(hex: "8b0aa5"),
             Color(hex: "5302a3"),
             Color(hex: "0d0887")
+        ]
+    }
+    
+    /// rainbow colors for testing purposes
+    static var rainbowPalette: [Color] {
+        return [Color(hex: "FF0000"),
+            Color(hex: "FF7F00"),
+            Color(hex: "f48849"),
+            Color(hex: "FFFF00"),
+            Color(hex: "00FF00"),
+            Color(hex: "0000FF"),
+            Color(hex: "4B0082"),
+            Color(hex: "9400D3")
         ]
     }
 }

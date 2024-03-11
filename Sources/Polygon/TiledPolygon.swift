@@ -13,7 +13,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
     @usableFromInline 
     internal var _kind: any TileablePolygonKind = Square()
     /// kind of polygon that can be tiled on a euclydian plane
-    @inlinable public func kind(_ kind: TileablePolygonKind) -> TiledPolygon {
+    @inlinable public func kind(_ kind: any TileablePolygonKind) -> TiledPolygon {
         var newCopy = self
         newCopy._kind = kind
         return newCopy
@@ -164,7 +164,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
                             if tileX.isOdd() {
                                 //we need to reverse the rotation 180 degrees when we are tiling odd columns for
                                 //triangles
-                                additionalRotation = Angle(radians: layoutMetrics.initialShapeRotation + Double.pi).radians
+                                additionalRotation = CGFloat.pi
                             }
                         default:
                             // other shapes do not need additional rotation
@@ -201,8 +201,8 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Octagon(yAxisStagger: 24))
-        .interTileSpacing(4)
+        .kind(EquilateralTriangle())
+        .interTileSpacing(2)
         .fillColorPattern(Color.viridisPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 92))
         .background(backgroundColor)

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Angle concept similar to that of SwiftUI's
-public struct CommonAngle: Sendable {
+public struct CommonAngle: Hashable, Codable, Sendable {
     public let degrees: CGFloat
     public let radians: CGFloat
     

@@ -14,7 +14,7 @@ import Foundation
 /// When you provide a target, then the size of each polygon fluctuates.
 ///
 /// - Note: The height of the polygon is not necessary and can be derived from its width.
-public struct TileablePolygonSize {
+public struct TileablePolygonSize: Hashable, Codable {
     let fixedWidth: CGFloat
     let horizontalPolygonTarget: CGFloat?
     

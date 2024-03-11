@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 public protocol TileablePolygonProtocol {
     /// given row and column tiling assignment, calculates the layout metrics (i.e. where it should be laid within the canvas)
@@ -14,13 +15,13 @@ public protocol TileablePolygonProtocol {
     ///   - tileY: refers to the tiles that are laid out vertically, like the y dimension
     ///   - tileSize: size to use when performing calculations - provide the effective tile size
     /// - Returns: metrics on how to lay this tile within the given canvas. does not apply out of bounds correction
-    func performLayout(for polygonKind: TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics
+    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics
     
     /// You use this when the request is to layout a fixed number of polygons horizontally.
     /// It determines the size of each tile as well as how many rows of tiles are needed.
     func deduceMetricsFor(flexiblePolygonSize: TileablePolygonSize,
                                canvasSize: CGSize,
-                               polygonKind: TileablePolygonKind,
+                                polygonKind: any TileablePolygonKind,
                                interTileSpacing: CGFloat,
                                targetNumberOfHorizontallyLaidPolygons: CGFloat) -> DeducedTilingMetrics
     
@@ -28,7 +29,7 @@ public protocol TileablePolygonProtocol {
     /// polygons are needed horizontally and vertically to fit the available canvas.
     func deduceMetricsFor(fixedPolygonSize: TileablePolygonSize,
                        canvasSize: CGSize,
-                       polygonKind: TileablePolygonKind,
+                      polygonKind: any TileablePolygonKind,
                        interTileSpacing: CGFloat) -> DeducedTilingMetrics
     
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
@@ -38,7 +39,7 @@ public protocol TileablePolygonProtocol {
     ///   - radius: radius of the biggest circle that can be drawn in its bounding rectangle
     ///   - rotationAngle: optional rotation to apply in radians
     /// - Returns: a path of the polygon
-    func drawInitialPolygonPath(for polygonKind: TileablePolygonKind,
+    func drawInitialPolygonPath(for polygonKind: any TileablePolygonKind,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
                                 rotationInRadians: CGFloat?) -> BezierPath
@@ -79,7 +80,7 @@ public extension TileablePolygonProtocol {
     }
     
     
-    func drawInitialPolygonPath(for polygonKind: TileablePolygonKind,
+    func drawInitialPolygonPath(for polygonKind: any TileablePolygonKind,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
                                 rotationInRadians: CGFloat?) -> BezierPath {
@@ -120,7 +121,7 @@ public extension TileablePolygonProtocol {
     
     func deduceMetricsFor(fixedPolygonSize: TileablePolygonSize,
                        canvasSize: CGSize,
-                       polygonKind: TileablePolygonKind,
+                       polygonKind: any TileablePolygonKind,
                        interTileSpacing: CGFloat) -> DeducedTilingMetrics {
         let numberOfTileableColumns: Int
         let numberOfTileableRows: Int
@@ -175,7 +176,7 @@ public extension TileablePolygonProtocol {
     /// It determines the size of each tile as well as how many rows of tiles are needed.
     func deduceMetricsFor(flexiblePolygonSize: TileablePolygonSize,
                                canvasSize: CGSize,
-                               polygonKind: TileablePolygonKind,
+                               polygonKind: any TileablePolygonKind,
                                interTileSpacing: CGFloat,
                                targetNumberOfHorizontallyLaidPolygons: CGFloat) -> DeducedTilingMetrics {
         let numberOfTileableColumns: Int
@@ -247,7 +248,7 @@ public extension TileablePolygonProtocol {
                                      effectiveTileSize: effectiveTileSize)
     }
     
-    func performLayout(for polygonKind: TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics {
+    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics {
         let tileXOffset: CGFloat
         let tileYOffset: CGFloat
         // apply half of the inter tile spacing around the edges to make it look right
@@ -305,7 +306,8 @@ public extension TileablePolygonProtocol {
             // because a hexagon's base length is half the width of its enclosing square
             // we need half of that amount in negative offset so that each hexagon fits nicely
             // in a staggered way
-            let negativeOffsetNeededForGaplessTiling = aHexagon.baseLength(for: tileSize.width) / 2.0
+            let baseLength = tileSize.width / 2.0
+            let negativeOffsetNeededForGaplessTiling = baseLength / 2.0
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing - negativeOffsetNeededForGaplessTiling) + paddingAroundTheEdges
             if isProcessingOddColumn {
                 tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + ((tileSize.height / 2.0) + (paddingAroundTheEdges * 2))
@@ -344,4 +346,19 @@ public extension TileablePolygonProtocol {
                                          initialShapeRotation: initialShapeRotation.radians,
                                          appliedStaggerEffect: appliedStaggerValue)
     }
+}
+
+#Preview {
+    let backgroundColor = Color(white: 0.85) //light gray
+
+    // configure the polygon
+    let tiledPolygon = TiledPolygon()
+        .kind(EquilateralTriangle())
+        .interTileSpacing(2)
+        .fillColorPattern(Color.viridisPalette)
+        .polygonSize(TileablePolygonSize(fixedWidth: 92))
+        .background(backgroundColor)
+        .padding(0)
+    
+    return tiledPolygon
 }

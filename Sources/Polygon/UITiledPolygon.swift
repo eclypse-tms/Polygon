@@ -4,7 +4,10 @@
 //
 //  Created by eclypse on 3/2/24.
 //
-#if canImport(UIKit)
+
+#if canImport(SwiftUI)
+
+#elseif canImport(UIKit)
 import UIKit
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
@@ -12,7 +15,7 @@ import UIKit
 public class UITiledPolygon: UIView, TileablePolygonProtocol {
     
     /// kind of polygon that can be tiled on a euclydian plane
-    open var tileablePolygonKind: TileablePolygonKind = Square() {
+    open var tileablePolygonKind: any TileablePolygonKind = Square() {
         didSet {
             setNeedsDisplay()
         }
