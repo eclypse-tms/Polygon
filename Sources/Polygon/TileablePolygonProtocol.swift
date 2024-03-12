@@ -14,8 +14,9 @@ public protocol TileablePolygonProtocol {
     ///   - tileX: refers to the tiles that are laid out horizontally, like the x dimension
     ///   - tileY: refers to the tiles that are laid out vertically, like the y dimension
     ///   - tileSize: size to use when performing calculations - provide the effective tile size
+    ///   - yAxisStagger: a percent value to stagger tiles on their Y axis when tiling them.
     /// - Returns: metrics on how to lay this tile within the given canvas. does not apply out of bounds correction
-    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics
+    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat, yAxisStagger: CGFloat?) -> TilingLayoutMetrics
     
     /// You use this when the request is to layout a fixed number of polygons horizontally.
     /// It determines the size of each tile as well as how many rows of tiles are needed.
@@ -248,7 +249,7 @@ public extension TileablePolygonProtocol {
                                      effectiveTileSize: effectiveTileSize)
     }
     
-    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat) -> TilingLayoutMetrics {
+    func performLayout(for polygonKind: any TileablePolygonKind, tileX: Int, tileY: Int, tileSize: CGSize, interTileSpacing: CGFloat, yAxisStagger: CGFloat?) -> TilingLayoutMetrics {
         let tileXOffset: CGFloat
         let tileYOffset: CGFloat
         // apply half of the inter tile spacing around the edges to make it look right
@@ -258,50 +259,54 @@ public extension TileablePolygonProtocol {
         // for this reason, we need to know whether we are processing the odd column at the moment
         let isProcessingOddColumn = tileX.isOdd()
         
-        var appliedStaggerValue = CGFloat(0)
+        var appliedYAxisStaggerValue = (yAxisStagger ?? .zero) * (tileSize.height + interTileSpacing)
         var initialShapeRotation = CommonAngle.zero
         
         switch polygonKind {
         case let equilateralTriangle as EquilateralTriangle:
-            appliedStaggerValue = equilateralTriangle.staggerEffect
             initialShapeRotation = equilateralTriangle.initialRotation
             
-            let finalXStaggeringOffset: CGFloat
-            let finalYStaggeringOffset: CGFloat
-            if tileX.isEven() {
-                finalXStaggeringOffset = CGFloat(tileX / 2) * appliedStaggerValue * sin(CommonAngle(degrees: 30).radians / sin(CommonAngle(degrees: 60).radians))
-                finalYStaggeringOffset = (CGFloat(tileX / 2) * appliedStaggerValue)
-            } else {
-                if tileX == -1 {
-                    //special case for column -1 // no staggering effect needed
-                    finalXStaggeringOffset = 0
-                    finalYStaggeringOffset = 0
-                } else {
-                    finalXStaggeringOffset = CGFloat((tileX / 2) + 1) * appliedStaggerValue * sin(CommonAngle(degrees: 30).radians / sin(CommonAngle(degrees: 60).radians))
-                    finalYStaggeringOffset = (CGFloat((tileX / 2) + 1) * appliedStaggerValue)
-                }
-            }
+            // we are treating odd and even columns separately.
+            // -1st & 0th columns are tiled together
+            // 1st & 2nd columns are tiled together,
+            // 3rd & 4th columns are tiled together, and so on...
+            let columnMultiplier: CGFloat = CGFloat((tileX + 1)/2)
             
-            let primaryXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
-            let primaryYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
-            let xCorrection = CGFloat(tileX) * (tileSize.width / 2)
             
-            tileXOffset = primaryXOffset - xCorrection + finalXStaggeringOffset
-            tileYOffset = primaryYOffset + finalYStaggeringOffset
+            // since this shape is an equilateral triangle, the degrees of 30 and 60 are coming from that
+            // to calculate the constant, we need to perform:
+            // let constant = sin(CommonAngle(degrees: 30).radians / sin(CommonAngle(degrees: 60).radians))
+            // sin(30) = 1/2 | sin(60) = √3/2 => constant = 1/√3
+            // let constant = 1.0/sqrt(3.0)
+            let trigonometricConstant = 1.0/sqrt(3)
+            
+            let offsetFromStaggeringX = (columnMultiplier * appliedYAxisStaggerValue * trigonometricConstant)
+            
+            // staggering value can be so high that the polygons could be drawn out of bounds in the y dimension
+            // we need to apply a modulus (i.e. correction) so that it pulls all the polygons upwards so that
+            // all the polygons will still be visible - within the bounds of the canvas
+            let modulusAppliedWhenStaggeringForY = tileSize.height + interTileSpacing
+            let offsetFromStaggeringY = (columnMultiplier * appliedYAxisStaggerValue).remainder(dividingBy: modulusAppliedWhenStaggeringForY) //- modulusAppliedWhenStaggeringForY
+            
+            let tilingXOffset = CGFloat(tileX) * (tileSize.width - (tileSize.width / 2) + interTileSpacing) + paddingAroundTheEdges
+            let tilingYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
+
+            
+            tileXOffset = tilingXOffset + offsetFromStaggeringX
+            tileYOffset = tilingYOffset + offsetFromStaggeringY
         case let aSquare as Square:
             initialShapeRotation = aSquare.initialRotation
-            appliedStaggerValue = aSquare.staggerEffect
-            let staggerOffsetPerColumn = (CGFloat(tileX) * appliedStaggerValue)
+            let offsetFromStaggeringY = (CGFloat(tileX) * appliedYAxisStaggerValue)
             
             let totalModulus = tileSize.height + interTileSpacing
-            let modulatedStaggerOffset = staggerOffsetPerColumn.remainder(dividingBy: totalModulus) - (totalModulus)
+            let modulatedStaggerOffset = offsetFromStaggeringY.remainder(dividingBy: totalModulus) - (totalModulus)
             
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
             
         case let aHexagon as Hexagon:
             initialShapeRotation = aHexagon.initialRotation
-            appliedStaggerValue = aHexagon.staggerEffect
+            appliedYAxisStaggerValue = 0.0 //additional staggering is not supported for hexagon
             
             // because a hexagon's base length is half the width of its enclosing square
             // we need half of that amount in negative offset so that each hexagon fits nicely
@@ -317,25 +322,14 @@ public extension TileablePolygonProtocol {
             }
         case let anOctagon as Octagon:
             initialShapeRotation = anOctagon.initialRotation
-            appliedStaggerValue = anOctagon.staggerEffect
-            let staggerOffsetPerColumn = (CGFloat(tileX) * appliedStaggerValue)
+            let offsetFromStaggeringY = (CGFloat(tileX) * appliedYAxisStaggerValue)
             
             let totalModulus = tileSize.height + interTileSpacing
-            let modulatedStaggerOffset = staggerOffsetPerColumn.remainder(dividingBy: totalModulus) - (totalModulus)
+            let modulatedStaggerOffset = offsetFromStaggeringY.remainder(dividingBy: totalModulus) - (totalModulus)
             
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
-            /*
-            initialShapeRotation = anOctagon.initialRotation
-            appliedStaggerValue = anOctagon.staggerEffect
             
-            // because a hexagon's base length is half the width of its enclosing square
-            // we need half of that amount in negative offset so that each hexagon fits nicely
-            // in a staggered way
-            let negativeOffsetNeededForGaplessTiling = anOctagon.baseLength(for: tileSize.width) / 2.0
-            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing - negativeOffsetNeededForGaplessTiling) + paddingAroundTheEdges
-            tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
-            */
         default:
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges
@@ -344,7 +338,7 @@ public extension TileablePolygonProtocol {
         return TilingLayoutMetrics(tileXOffset: tileXOffset,
                                          tileYOffset: tileYOffset,
                                          initialShapeRotation: initialShapeRotation.radians,
-                                         appliedStaggerEffect: appliedStaggerValue)
+                                         appliedStaggerEffect: appliedYAxisStaggerValue)
     }
 }
 
@@ -353,10 +347,11 @@ public extension TileablePolygonProtocol {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(EquilateralTriangle())
-        .interTileSpacing(2)
-        .fillColorPattern(Color.viridisPalette)
-        .polygonSize(TileablePolygonSize(fixedWidth: 92))
+        .kind(Square())
+        .yAxisStaggerEffect(0.5)
+        .interTileSpacing(20)
+        .fillColorPattern(Color.infernoPalette)
+        .polygonSize(TileablePolygonSize(fixedWidth: 100))
         .background(backgroundColor)
         .padding(0)
     

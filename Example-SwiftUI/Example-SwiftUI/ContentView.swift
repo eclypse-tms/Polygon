@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var specifiedFixedWidth = String(Int(PolygonSize.fixedWidth.defaultWidth))
     @State private var specifiedHorizontalTarget = String(Int(PolygonSize.horizontalTarget.defaultWidth))
     
-    @State private var singleOrMultiColorSelection = 1
+    @State private var singleOrMultiColorSelection = 0
     @State private var specifiedSingleColor = Color.blue
     @State private var specifiedColorPalette = ColorPalette.viridis
     @State private var specifiedStaggerEffect = 0.0
@@ -27,14 +27,14 @@ struct ContentView: View {
         VStack(alignment: .center, spacing: 24) {
             HStack {
                 Spacer()
-                    .frame(width: .infinity)
+                    .frame(minWidth: 1, maxWidth: 4096)
                 Picker("", selection: $selectedRenderingOption, content: {
                     Text("Individual Polygons").tag(0)
                     Text("Tiled Polygons").tag(1)
                 })
                 .pickerStyle(.segmented)
                 Spacer()
-                    .frame(width: .infinity)
+                    .frame(minWidth: 1, maxWidth: 4096)
             }
             
             if selectedRenderingOption == 0 {
@@ -56,7 +56,7 @@ struct ContentView: View {
             
             HStack {
                 Spacer()
-                    .frame(width: .infinity)
+                    .frame(minWidth: 1)
                 HStack {
                     VStack(alignment: .center, spacing: 12, content: {
                         shapeSelector
@@ -91,18 +91,19 @@ struct ContentView: View {
         
         switch selectedTileablePolygon {
         case .equilateralTriangle:
-            polygonKind = EquilateralTriangle(yAxisStagger: specifiedStaggerEffect)
+            polygonKind = EquilateralTriangle()
         case .square:
-            polygonKind = Square(yAxisStagger: specifiedStaggerEffect)
+            polygonKind = Square()
         case .hexagon:
             polygonKind = Hexagon()
         case .octagon:
-            polygonKind = Octagon(yAxisStagger: specifiedStaggerEffect)
+            polygonKind = Octagon()
         }
         
         var resultingTiledPolygon = TiledPolygon()
             .kind(polygonKind)
             .interTileSpacing(specifiedInterTilingSpace)
+            .yAxisStaggerEffect(specifiedStaggerEffect)
         
         switch singleOrMultiColorSelection {
         case 0: //single color
@@ -127,12 +128,12 @@ struct ContentView: View {
         HStack {
             Text("Tile padding")
             Spacer()
-                .frame(minWidth: 1)
+                .frame(minWidth: 20)
             Slider(value: $specifiedInterTilingSpace,
                    in: 0...8,
                    step: 1.0,
                    label: {
-                Text("Tile padding")
+                Text("")
             }, minimumValueLabel: {
                 Text("0")
             }, maximumValueLabel: {
@@ -149,14 +150,14 @@ struct ContentView: View {
             Spacer()
                 .frame(minWidth: 1)
             Slider(value: $specifiedStaggerEffect,
-                   in: 0...64,
-                   step: 4.0,
+                   in: 0.0...1.0,
+                   step: 0.05,
                    label: {
-                Text("Inter tiling space")
+                Text("")
             }, minimumValueLabel: {
-                Text("0")
+                Text("0%")
             }, maximumValueLabel: {
-                Text("64")
+                Text("100%")
             }, onEditingChanged: { _ in
                 renderTiledPolygons()
             }).frame(minWidth: 200)
@@ -167,12 +168,15 @@ struct ContentView: View {
         HStack {
             switch singleOrMultiColorSelection {
             case 0:
-                ColorPicker<Text>("Pick Color", selection: $specifiedSingleColor)
+                Text("Pick Color")
+                Spacer()
+                    .frame(minWidth: 1)
+                ColorPicker<Text>("", selection: $specifiedSingleColor)
             default:
                 Text("Pick a palette")
                 Spacer()
-                    .frame(width: .infinity)
-                Picker("Pick a palette", selection: $specifiedColorPalette, content: {
+                    .frame(minWidth: 1)
+                Picker("", selection: $specifiedColorPalette, content: {
                     ForEach(ColorPalette.allCases, content: { eachPalette in
                         Text(eachPalette.displayName)
                     })
@@ -189,7 +193,8 @@ struct ContentView: View {
         HStack {
             Text("Shape")
             Spacer()
-            Picker("Tileable Polygon Type", selection: $selectedTileablePolygon, content: {
+                .frame(minWidth: 1)
+            Picker("", selection: $selectedTileablePolygon, content: {
                 ForEach(DemoPolygons.allCases, content: { eachPolygon in
                     Text(eachPolygon.displayName)
                 })
@@ -204,8 +209,8 @@ struct ContentView: View {
         HStack {
             Text("Coloring")
             Spacer()
-                .frame(width: .infinity)
-            Picker("Coloring", selection: $singleOrMultiColorSelection, content: {
+                .frame(minWidth: 1)
+            Picker("", selection: $singleOrMultiColorSelection, content: {
                 Text("Single").tag(0)
                 Text("Multi").tag(1)
             })
@@ -220,8 +225,8 @@ struct ContentView: View {
         HStack(spacing: 8, content: {
             Text("Size")
             Spacer()
-                .frame(maxWidth: 40)
-            Picker("Polygon Size", selection: $selectedPolygonSize, content: {
+                .frame(minWidth: 1)
+            Picker("", selection: $selectedPolygonSize, content: {
                 ForEach(PolygonSize.allCases, content: { eachSizeOption in
                     Text(eachSizeOption.displayName)
                 })
@@ -235,7 +240,7 @@ struct ContentView: View {
                     Text("Width")
                 })
                 .border(.tertiary)
-                .keyboardType(.numberPad)
+                //.keyboardType(.numberPad)
                 .onSubmit {
                     self.renderTiledPolygons()
                 }.frame(width: 48)
@@ -244,7 +249,7 @@ struct ContentView: View {
                     Text("Width")
                 })
                 .border(.tertiary)
-                .keyboardType(.numberPad)
+                //.keyboardType(.numberPad)
                 .onSubmit {
                     self.renderTiledPolygons()
                 }.frame(width: 48)

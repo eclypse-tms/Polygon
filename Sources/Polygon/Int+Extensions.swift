@@ -8,13 +8,11 @@
 import Foundation
 
 extension Int {
-    @inlinable 
-    func isEven() -> Bool {
+    @inlinable func isEven() -> Bool {
         return self % 2 == 0
     }
     
-    @inlinable
-    func isOdd() -> Bool {
-        return abs(self % 2) == 1
+    @inlinable func isOdd() -> Bool {
+        return !isEven()
     }
 }
