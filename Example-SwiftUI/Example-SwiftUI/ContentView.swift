@@ -10,7 +10,7 @@ import Polygon
 
 struct ContentView: View {
     @State private var selectedRenderingOption = 1
-    @State private var selectedTileablePolygon = DemoPolygons.square
+    @State private var selectedTileablePolygon = TileablePolygonType.square
     @State private var selectedPolygonSize = PolygonSize.horizontalTarget
     @State private var specifiedFixedWidth = String(Int(PolygonSize.fixedWidth.defaultWidth))
     @State private var specifiedHorizontalTarget = String(Int(PolygonSize.horizontalTarget.defaultWidth))
@@ -103,7 +103,7 @@ struct ContentView: View {
         var resultingTiledPolygon = TiledPolygon()
             .kind(polygonKind)
             .interTileSpacing(specifiedInterTilingSpace)
-            .yAxisStaggerEffect(specifiedStaggerEffect)
+            .staggerEffect(StaggerEffect(specifiedStaggerEffect))
         
         switch singleOrMultiColorSelection {
         case 0: //single color
@@ -195,7 +195,7 @@ struct ContentView: View {
             Spacer()
                 .frame(minWidth: 1)
             Picker("", selection: $selectedTileablePolygon, content: {
-                ForEach(DemoPolygons.allCases, content: { eachPolygon in
+                ForEach(TileablePolygonType.allCases, content: { eachPolygon in
                     Text(eachPolygon.displayName)
                 })
             }).pickerStyle(.menu)

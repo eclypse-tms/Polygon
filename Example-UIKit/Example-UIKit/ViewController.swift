@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  Example
+//  Example-UIKit
 //
-//  Created by eclypse on 2/22/24.
+//  Created by eclypse on 3/13/24.
 //
 
 import UIKit
@@ -10,16 +10,20 @@ import Polygon
 
 class ViewController: UIViewController {
     private var mainStackView: UIStackView!
+    private var individualPolygonsStackView: UIStackView!
     private var topPaddingView: UIView!
     private var bottomPaddingView: UIView!
     private var animateButton: UIButton!
     private var animatablePolygon: AnimatableUIPolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
+    private var tiledPolygon: UITiledPolygon!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         configureMainView()
+        configureIndividualPolygonsStackView()
+        configureTiledPolygon()
         configureTopPadding()
         configureTopStackView()
         configureBottomStack()
@@ -29,6 +33,23 @@ class ViewController: UIViewController {
     }
     
     private func configureMainView() {
+        let polygonSelectorSegment = UISegmentedControl()
+        polygonSelectorSegment.insertSegment(withTitle: "Individual Polygons", at: 0, animated: false)
+        polygonSelectorSegment.insertSegment(withTitle: "Tiled Polygons", at: 1, animated: false)
+        polygonSelectorSegment.selectedSegmentIndex = 1
+        polygonSelectorSegment.addTarget(self, action: #selector(didClickSegment(_:)), for: .valueChanged)
+        polygonSelectorSegment.setEnabled(true, forSegmentAt: 0)
+        polygonSelectorSegment.setEnabled(true, forSegmentAt: 1)
+        
+        polygonSelectorSegment.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(polygonSelectorSegment)
+        
+        NSLayoutConstraint.activate([
+            polygonSelectorSegment.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            polygonSelectorSegment.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        ])
+        
+        
         mainStackView = UIStackView()
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
@@ -41,14 +62,31 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             mainStackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
             mainStackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
-            mainStackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 16),
+            mainStackView.topAnchor.constraint(equalTo: polygonSelectorSegment.bottomAnchor, constant: 16),
             mainStackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -16),
         ])
     }
     
+    private func configureIndividualPolygonsStackView() {
+        individualPolygonsStackView = UIStackView()
+        individualPolygonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        individualPolygonsStackView.axis = .vertical
+        individualPolygonsStackView.backgroundColor = .systemBackground
+        individualPolygonsStackView.alignment = .fill
+        individualPolygonsStackView.spacing = 16
+        
+        self.mainStackView.addArrangedSubview(individualPolygonsStackView)
+    }
+    
+    private func configureTiledPolygon() {
+        tiledPolygon = UITiledPolygon()
+         
+        self.mainStackView.addArrangedSubview(tiledPolygon)
+    }
+    
     private func configureTopPadding() {
         topPaddingView = UIView()
-        mainStackView.addArrangedSubview(topPaddingView)
+        individualPolygonsStackView.addArrangedSubview(topPaddingView)
     }
     
     private func configureTopStackView() {
@@ -103,7 +141,7 @@ class ViewController: UIViewController {
         nanogon.numberOfSides = 9
         nanogon.rotationAngle = -10.5
         addConstrainedSubview(nanogon, to: topStackView)
-        mainStackView.addArrangedSubview(topStackView)
+        individualPolygonsStackView.addArrangedSubview(topStackView)
     }
     
     private func configureBottomStack() {
@@ -153,7 +191,7 @@ class ViewController: UIViewController {
         sixteengon.fillColor = UIColor.tintColor
         sixteengon.numberOfSides = 16
         addConstrainedSubview(sixteengon, to: bottomStackView)
-        mainStackView.addArrangedSubview(bottomStackView)
+        individualPolygonsStackView.addArrangedSubview(bottomStackView)
     }
     
     private func configureSeparator() {
@@ -162,7 +200,7 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             separatorLine.heightAnchor.constraint(equalToConstant: 1.0)
         ])
-        mainStackView.addArrangedSubview(separatorLine)
+        individualPolygonsStackView.addArrangedSubview(separatorLine)
     }
 
     private func configureAnimatablePolygon() {
@@ -190,12 +228,12 @@ class ViewController: UIViewController {
         let paddingView = UIView()
         animationStack.addArrangedSubview(paddingView)
         
-        mainStackView.addArrangedSubview(animationStack)
+        individualPolygonsStackView.addArrangedSubview(animationStack)
     }
     
     private func configureBottomPadding() {
         bottomPaddingView = UIView()
-        mainStackView.addArrangedSubview(bottomPaddingView)
+        individualPolygonsStackView.addArrangedSubview(bottomPaddingView)
         
         NSLayoutConstraint.activate([
             topPaddingView.heightAnchor.constraint(equalTo: bottomPaddingView.heightAnchor),
@@ -217,7 +255,7 @@ class ViewController: UIViewController {
             //strongSelf.mainStackView?.setNeedsLayout()
         }, completion: { [weak self] context in
             guard let strongSelf = self else { return }
-            strongSelf.mainStackView?.setNeedsLayout()
+            strongSelf.individualPolygonsStackView?.setNeedsLayout()
         })
     }
     
@@ -274,6 +312,18 @@ class ViewController: UIViewController {
         opacityAnimation.toValue = Float(0.0)
         opacityAnimation.duration = 0.5
         */
+    }
+    
+    @objc
+    private func didClickSegment(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            individualPolygonsStackView.isHidden = false
+            tiledPolygon.isHidden = true
+        default:
+            individualPolygonsStackView.isHidden = true
+            tiledPolygon.isHidden = false
+        }
     }
 }
 
@@ -350,3 +400,4 @@ struct ConstraintPair {
     return aStackView
 }
 */
+

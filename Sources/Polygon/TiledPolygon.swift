@@ -78,10 +78,10 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
     }
     
     @usableFromInline
-    internal var _yAxisStaggerEffect = CGFloat.zero
+    internal var _staggerEffect = StaggerEffect.zero
     
-    /// Optional. Provide a positive value between 0 and 1 to stagger the shapes on their Y axis
-    /// when tiling them. 
+    /// Optional. Provide a positive stagger effect value between 0 and 1 to tile the shapes
+    /// with that specified amount of offset on their Y axis
     ///
     /// The provided value is interpreted in terms of percentage of the calculated tile height.
     /// Any values outside of the acceptable range are ignored.
@@ -89,15 +89,9 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
     /// For example: provide 0.5 for an alternate tiling effect.
     /// ![Squares are tiled in an alternate fashion](https://i.imgur.com/gZm9o4J.png "alternate tiling")
     /// - SeeAlso: TilablePolygonSize
-    @inlinable public func yAxisStaggerEffect(_ effect: CGFloat) -> TiledPolygon {
+    @inlinable public func staggerEffect(_ effect: StaggerEffect) -> TiledPolygon {
         var newCopy = self
-        if effect >= 1.0 {
-            newCopy._yAxisStaggerEffect = 0.0
-        } else if effect < 0.0 {
-            newCopy._yAxisStaggerEffect = 0.0
-        } else {
-            newCopy._yAxisStaggerEffect = effect
-        }
+        newCopy._staggerEffect = effect
         return newCopy
     }
         
@@ -158,7 +152,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
                                                       tileY: tileY,
                                                       tileSize: effectiveTileSize,
                                                       interTileSpacing: _interTileSpacing,
-                                                      yAxisStagger: _yAxisStaggerEffect)
+                                                      staggerEffect: _staggerEffect)
                     
                     let boundingRect = CGRect(origin: CGPoint(x: layoutMetrics.tileXOffset, y: layoutMetrics.tileYOffset), size: effectiveTileSize)
 
@@ -228,7 +222,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
     let tiledPolygon = TiledPolygon()
         .kind(Square())
         .interTileSpacing(6)
-        .yAxisStaggerEffect(0.5)
+        .staggerEffect(StaggerEffect(0.5))
         .fillColorPattern(Color.viridisPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 92))
         .background(backgroundColor)

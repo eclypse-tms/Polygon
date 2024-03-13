@@ -5,9 +5,7 @@
 //  Created by eclypse on 3/2/24.
 //
 
-#if canImport(SwiftUI)
-
-#elseif canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
@@ -51,7 +49,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
     }
     
     /// Spacing in between the tiles. default value is 1 point.
-    open var _interTileSpacing: CGFloat = 1.0 {
+    open var interTileSpacing: CGFloat = 1.0 {
         didSet {
             setNeedsDisplay()
         }
@@ -61,6 +59,21 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
     /// indicates either the size of each polygon or the number of polygons per row.
     /// - SeeAlso: TilablePolygonSize
     open var polygonSize = TileablePolygonSize(fixedWidth: 64) {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+        
+    /// Optional. Provide a positive stagger effect value between 0 and 1 to tile the shapes
+    /// with that specified amount of offset on their Y axis
+    ///
+    /// The provided value is interpreted in terms of percentage of the calculated tile height.
+    /// Any values outside of the acceptable range are ignored.
+    ///
+    /// For example: provide 0.5 for an alternate tiling effect.
+    /// ![Squares are tiled in an alternate fashion](https://i.imgur.com/gZm9o4J.png "alternate tiling")
+    /// - SeeAlso: TilablePolygonSize
+    open var staggerEffect = StaggerEffect.zero {
         didSet {
             setNeedsDisplay()
         }
@@ -96,7 +109,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
             let deducedSize = deduceMetricsFor(flexiblePolygonSize: polygonSize,
                                                canvasSize: canvasSize,
                                                polygonKind: tileablePolygonKind,
-                                               interTileSpacing: _interTileSpacing,
+                                               interTileSpacing: interTileSpacing,
                                                targetNumberOfHorizontallyLaidPolygons: validNumberOfHorizontalPolygons)
             numberOfTileableColumns = deducedSize.numberOfTileableColumns
             numberOfTileableRows = deducedSize.numberOfTileableRows
@@ -105,7 +118,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
             let deducedSize = deduceMetricsFor(fixedPolygonSize: polygonSize,
                                             canvasSize: canvasSize,
                                             polygonKind: tileablePolygonKind,
-                                            interTileSpacing: _interTileSpacing)
+                                            interTileSpacing: interTileSpacing)
             numberOfTileableColumns = deducedSize.numberOfTileableColumns
             numberOfTileableRows = deducedSize.numberOfTileableRows
             effectiveTileSize = deducedSize.effectiveTileSize
@@ -136,7 +149,8 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
                                                   tileX: tileX,
                                                   tileY: tileY,
                                                   tileSize: effectiveTileSize,
-                                                  interTileSpacing: _interTileSpacing)
+                                                  interTileSpacing: interTileSpacing, 
+                                                  staggerEffect: staggerEffect)
                 
                 let boundingRect = CGRect(origin: CGPoint(x: layoutMetrics.tileXOffset, y: layoutMetrics.tileYOffset), size: effectiveTileSize)
                 
@@ -159,7 +173,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
                     // the polygon points will be located on a circle - hence the radius calculation
                     // this radius calculation also takes into account the border width which gets
                     // added on the outside of the shape
-                    let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
+                    let radius = min(boundingRect.width, boundingRect.height) / 2.0 - interTileSpacing / 2.0
                     
                     var additionalRotation: CGFloat?
                     switch tileablePolygonKind {

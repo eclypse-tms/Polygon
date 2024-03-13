@@ -1,15 +1,15 @@
 //
-//  DemoPolygons.swift
+//  DataForDemo.swift
 //  Example-SwiftUI
 //
-//  Created by Nessa Kucuk, Turker on 3/11/24.
+//  Created by eclypse on 3/11/24.
 //
 
 import Foundation
 import SwiftUI
 import Polygon
 
-enum DemoPolygons: String, CaseIterable, Identifiable {
+enum TileablePolygonType: String, CaseIterable, Identifiable {
     case equilateralTriangle
     case square
     case hexagon

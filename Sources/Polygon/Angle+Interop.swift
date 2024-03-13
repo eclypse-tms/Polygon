@@ -2,7 +2,7 @@
 //  CommonAngle.swift
 //
 //
-//  Created by Nessa Kucuk, Turker on 3/10/24.
+//  Created by eclypse on 3/10/24.
 //
 
 import Foundation

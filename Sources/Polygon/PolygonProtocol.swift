@@ -142,10 +142,4 @@ extension PolygonProtocol {
         }
     }
 }
-#elseif canImport(AppKit)
-import AppKit
-public protocol PolygonProtocol {
-    // this protocol doesn't do anything in AppKit
-}
-
 #endif

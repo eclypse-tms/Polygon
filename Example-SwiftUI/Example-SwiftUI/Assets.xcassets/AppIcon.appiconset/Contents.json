@@ -1,67 +1,67 @@
 {
   "images" : [
     {
-      "filename" : "Polygon_app_icon.png",
+      "filename" : "iOS app icon@1x.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
     },
     {
-      "filename" : "mac app icon-16.png",
+      "filename" : "mac app icon@1x-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "mac app icon-32.png",
+      "filename" : "mac app icon@1x-32 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "mac app icon-32 1.png",
+      "filename" : "mac app icon@1x-32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "mac app icon-64.png",
+      "filename" : "mac app icon@1x-64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "mac app icon-128.png",
+      "filename" : "mac app icon@1x-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "mac app icon-256.png",
+      "filename" : "mac app icon@1x-256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "mac app icon-256 1.png",
+      "filename" : "mac app icon@1x-256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "mac app icon-512.png",
+      "filename" : "mac app icon@1x-512 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "mac app icon-512 1.png",
+      "filename" : "mac app icon@1x-512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "mac app icon-1024.png",
+      "filename" : "mac app icon@1x-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

@@ -2,7 +2,7 @@
 //  Int+Extensions.swift
 //
 //
-//  Created by Nessa Kucuk, Turker on 3/7/24.
+//  Created by eclypse on 3/7/24.
 //
 
 import Foundation
