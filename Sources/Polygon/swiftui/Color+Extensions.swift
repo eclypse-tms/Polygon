@@ -115,13 +115,12 @@ public extension Color {
     /// rainbow colors for testing purposes
     static var rainbowPalette: [Color] {
         return [Color(hex: "FF0000"),
-            Color(hex: "FF7F00"),
-            Color(hex: "f48849"),
+            Color(hex: "FF8000"),
             Color(hex: "FFFF00"),
             Color(hex: "00FF00"),
+            Color(hex: "00FFFF"),
             Color(hex: "0000FF"),
-            Color(hex: "4B0082"),
-            Color(hex: "9400D3")
+            Color(hex: "8000FF")
         ]
     }
 }

@@ -5,6 +5,7 @@
 //  Created by eclypse on 3/14/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension UIColor {
@@ -114,13 +115,14 @@ public extension UIColor {
     /// rainbow colors for testing purposes
     static var rainbowPalette: [UIColor] {
         return [UIColor(hex: "FF0000"),
-            UIColor(hex: "FF7F00"),
-            UIColor(hex: "f48849"),
+            UIColor(hex: "FF8000"),
             UIColor(hex: "FFFF00"),
             UIColor(hex: "00FF00"),
+            UIColor(hex: "00FFFF"),
             UIColor(hex: "0000FF"),
-            UIColor(hex: "4B0082"),
-            UIColor(hex: "9400D3")
+            UIColor(hex: "8000FF")
         ]
     }
 }
+
+#endif

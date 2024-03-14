@@ -65,47 +65,47 @@ class ViewController: UIViewController {
         topStackView.alignment = .fill
         topStackView.distribution = .equalSpacing
         
-        let triangle = UIPolygon()
+        let triangle = AnimatableUIPolygon()
         triangle.backgroundColor = .systemGray5
         triangle.fillColor = UIColor.tintColor
         triangle.numberOfSides = 3
         triangle.rotationAngle = 30
         addConstrainedSubview(triangle, to: topStackView)
         
-        let rectangle = UIPolygon()
+        let rectangle = AnimatableUIPolygon()
         rectangle.backgroundColor = .systemGray5
         rectangle.fillColor = UIColor.tintColor
         rectangle.numberOfSides = 4
         rectangle.rotationAngle = 45
         addConstrainedSubview(rectangle, to: topStackView)
         
-        let pentagon = UIPolygon()
+        let pentagon = AnimatableUIPolygon()
         pentagon.backgroundColor = .systemGray5
         pentagon.fillColor = UIColor.tintColor
         pentagon.numberOfSides = 5
         pentagon.rotationAngle = -18
         addConstrainedSubview(pentagon, to: topStackView)
         
-        let hexagon = UIPolygon()
+        let hexagon = AnimatableUIPolygon()
         hexagon.backgroundColor = .systemGray5
         hexagon.fillColor = UIColor.tintColor
         hexagon.numberOfSides = 6
         addConstrainedSubview(hexagon, to: topStackView)
         
-        let septagon = UIPolygon()
+        let septagon = AnimatableUIPolygon()
         septagon.backgroundColor = .systemGray5
         septagon.fillColor = UIColor.tintColor
         septagon.numberOfSides = 7
         septagon.rotationAngle = -90
         addConstrainedSubview(septagon, to: topStackView)
         
-        let octagon = UIPolygon()
+        let octagon = AnimatableUIPolygon()
         octagon.backgroundColor = .systemGray5
         octagon.fillColor = UIColor.tintColor
         octagon.numberOfSides = 8
         addConstrainedSubview(octagon, to: topStackView)
         
-        let nanogon = UIPolygon()
+        let nanogon = AnimatableUIPolygon()
         nanogon.backgroundColor = .systemGray5
         nanogon.fillColor = UIColor.tintColor
         nanogon.numberOfSides = 9
@@ -121,43 +121,43 @@ class ViewController: UIViewController {
         bottomStackView.alignment = .fill
         bottomStackView.distribution = .equalSpacing
         
-        let tengon = UIPolygon()
+        let tengon = AnimatableUIPolygon()
         tengon.backgroundColor = .systemGray5
         tengon.fillColor = UIColor.tintColor
         tengon.numberOfSides = 10
         addConstrainedSubview(tengon, to: bottomStackView)
         
-        let elevengon = UIPolygon()
+        let elevengon = AnimatableUIPolygon()
         elevengon.backgroundColor = .systemGray5
         elevengon.fillColor = UIColor.tintColor
         elevengon.numberOfSides = 11
         addConstrainedSubview(elevengon, to: bottomStackView)
         
-        let twelvegon = UIPolygon()
+        let twelvegon = AnimatableUIPolygon()
         twelvegon.backgroundColor = .systemGray5
         twelvegon.fillColor = UIColor.tintColor
         twelvegon.numberOfSides = 12
         addConstrainedSubview(twelvegon, to: bottomStackView)
         
-        let thirteengon = UIPolygon()
+        let thirteengon = AnimatableUIPolygon()
         thirteengon.backgroundColor = .systemGray5
         thirteengon.fillColor = UIColor.tintColor
         thirteengon.numberOfSides = 13
         addConstrainedSubview(thirteengon, to: bottomStackView)
         
-        let fourteengon = UIPolygon()
+        let fourteengon = AnimatableUIPolygon()
         fourteengon.backgroundColor = .systemGray5
         fourteengon.fillColor = UIColor.tintColor
         fourteengon.numberOfSides = 14
         addConstrainedSubview(fourteengon, to: bottomStackView)
         
-        let fifteengon = UIPolygon()
+        let fifteengon = AnimatableUIPolygon()
         fifteengon.backgroundColor = .systemGray5
         fifteengon.fillColor = UIColor.tintColor
         fifteengon.numberOfSides = 15
         addConstrainedSubview(fifteengon, to: bottomStackView)
         
-        let sixteengon = UIPolygon()
+        let sixteengon = AnimatableUIPolygon()
         sixteengon.backgroundColor = .systemGray5
         sixteengon.fillColor = UIColor.purple
         sixteengon.numberOfSides = 16
@@ -319,7 +319,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(paddingView)
     
-    let triangle = UIPolygon()
+    let triangle = AnimatableUIPolygon()
     triangle.backgroundColor = .systemGray5
     triangle.fillColor = UIColor.tintColor
     triangle.numberOfSides = 3
@@ -330,7 +330,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(triangle)
     
-    let rectangle = UIPolygon()
+    let rectangle = AnimatableUIPolygon()
     rectangle.backgroundColor = .systemGray5
     rectangle.fillColor = UIColor.tintColor
     rectangle.numberOfSides = 4
@@ -341,7 +341,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(rectangle)
     
-    let pentagon = UIPolygon()
+    let pentagon = AnimatableUIPolygon()
     pentagon.backgroundColor = .systemGray5
     pentagon.fillColor = UIColor.tintColor
     pentagon.numberOfSides = 5
@@ -352,7 +352,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(pentagon)
     
-    let hexagon = UIPolygon()
+    let hexagon = AnimatableUIPolygon()
     hexagon.backgroundColor = .systemGray5
     hexagon.fillColor = UIColor.tintColor
     hexagon.numberOfSides = 6
