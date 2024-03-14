@@ -9,20 +9,24 @@ import UIKit
 import Polygon
 
 class ViewController: UIViewController {
-    private var mainStackView: UIStackView!
-    private var individualPolygonsStackView: UIStackView!
+    @IBOutlet private var mainStackView: UIStackView!
+    @IBOutlet private var polygonSelectorSegment: UISegmentedControl!
+    @IBOutlet private var individualPolygonsStackView: UIStackView!
+    @IBOutlet private var tiledPolygon: UITiledPolygon!
+    @IBOutlet private var tiledPolygonControlPanel: UIView!
+    
+    
     private var topPaddingView: UIView!
     private var bottomPaddingView: UIView!
     private var animateButton: UIButton!
     private var animatablePolygon: AnimatableUIPolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
-    private var tiledPolygon: UITiledPolygon!
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        configureMainView()
-        configureIndividualPolygonsStackView()
+        configureIndividualPolygons()
         configureTiledPolygon()
         configureTopPadding()
         configureTopStackView()
@@ -32,56 +36,22 @@ class ViewController: UIViewController {
         configureBottomPadding()
     }
     
-    private func configureMainView() {
-        let polygonSelectorSegment = UISegmentedControl()
-        polygonSelectorSegment.insertSegment(withTitle: "Individual Polygons", at: 0, animated: false)
-        polygonSelectorSegment.insertSegment(withTitle: "Tiled Polygons", at: 1, animated: false)
-        polygonSelectorSegment.selectedSegmentIndex = 1
-        polygonSelectorSegment.addTarget(self, action: #selector(didClickSegment(_:)), for: .valueChanged)
-        polygonSelectorSegment.setEnabled(true, forSegmentAt: 0)
-        polygonSelectorSegment.setEnabled(true, forSegmentAt: 1)
+    private func configureIndividualPolygons() {
+        individualPolygonsStackView.isHidden = true
         
-        polygonSelectorSegment.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(polygonSelectorSegment)
-        
-        NSLayoutConstraint.activate([
-            polygonSelectorSegment.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            polygonSelectorSegment.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
-        ])
-        
-        
-        mainStackView = UIStackView()
-        mainStackView.translatesAutoresizingMaskIntoConstraints = false
-        mainStackView.axis = .vertical
-        mainStackView.backgroundColor = .systemBackground
-        mainStackView.alignment = .fill
-        mainStackView.spacing = 16
-        
-        self.view.addSubview(mainStackView)
-        
-        NSLayoutConstraint.activate([
-            mainStackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
-            mainStackView.topAnchor.constraint(equalTo: polygonSelectorSegment.bottomAnchor, constant: 16),
-            mainStackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -16),
-        ])
-    }
-    
-    private func configureIndividualPolygonsStackView() {
-        individualPolygonsStackView = UIStackView()
-        individualPolygonsStackView.translatesAutoresizingMaskIntoConstraints = false
         individualPolygonsStackView.axis = .vertical
         individualPolygonsStackView.backgroundColor = .systemBackground
         individualPolygonsStackView.alignment = .fill
         individualPolygonsStackView.spacing = 16
-        
-        self.mainStackView.addArrangedSubview(individualPolygonsStackView)
     }
     
     private func configureTiledPolygon() {
-        tiledPolygon = UITiledPolygon()
-         
-        self.mainStackView.addArrangedSubview(tiledPolygon)
+        tiledPolygon.backgroundColor = .systemGray5
+        tiledPolygon.isHidden = false //initial condition
+        
+        tiledPolygonControlPanel.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMinXMinYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner]
+        tiledPolygonControlPanel.layer.cornerRadius = 12
+        tiledPolygonControlPanel.clipsToBounds = true
     }
     
     private func configureTopPadding() {
@@ -141,6 +111,7 @@ class ViewController: UIViewController {
         nanogon.numberOfSides = 9
         nanogon.rotationAngle = -10.5
         addConstrainedSubview(nanogon, to: topStackView)
+        
         individualPolygonsStackView.addArrangedSubview(topStackView)
     }
     
@@ -188,7 +159,7 @@ class ViewController: UIViewController {
         
         let sixteengon = UIPolygon()
         sixteengon.backgroundColor = .systemGray5
-        sixteengon.fillColor = UIColor.tintColor
+        sixteengon.fillColor = UIColor.purple
         sixteengon.numberOfSides = 16
         addConstrainedSubview(sixteengon, to: bottomStackView)
         individualPolygonsStackView.addArrangedSubview(bottomStackView)
@@ -260,7 +231,7 @@ class ViewController: UIViewController {
     }
     
     /// before adding the view to the stack, creates a medium priority height and width constraints
-    func addConstrainedSubview(_ aPolygon: PolygonProtocol, to stackView: UIStackView) {
+    func addConstrainedSubview(_ aPolygon: UIPolygonProtocol, to stackView: UIStackView) {
         let additionalHeight: CGFloat
         switch traitCollection.horizontalSizeClass {
         case .regular:
@@ -299,7 +270,7 @@ class ViewController: UIViewController {
         opacityAnimation.duration = 2.0
         opacityAnimation.isRemovedOnCompletion = false
         opacityAnimation.fillMode = .forwards
-        opacityAnimation.repeatCount = 10
+        opacityAnimation.repeatCount = 1
         opacityAnimation.autoreverses = true
         
         self.animatablePolygon.apply(animation: opacityAnimation, completion: { _ in
@@ -314,7 +285,7 @@ class ViewController: UIViewController {
         */
     }
     
-    @objc
+    @IBAction
     private func didClickSegment(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:

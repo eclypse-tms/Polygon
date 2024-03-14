@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
-public struct TiledPolygon: View, TileablePolygonProtocol {
+public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
     
     @usableFromInline 
     internal var _kind: any TileablePolygonKind = Square()
@@ -177,23 +177,23 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
                         // added on the outside of the shape
                         let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
                         
-                        var additionalRotation: CGFloat?
+                        var totalRotation = _kind.initialRotation.radians
                         switch _kind {
                         case is EquilateralTriangle:
                             if tileX.isOdd() {
                                 //we need to reverse the rotation 180 degrees when we are tiling odd columns for
                                 //triangles
-                                additionalRotation = CGFloat.pi
+                                totalRotation += CGFloat.pi
                             }
                         default:
                             // other shapes do not need additional rotation
                             break
                         }
                         
-                        let initialPath = drawInitialPolygonPath(for: _kind,
+                        let initialPath = drawInitialPolygonPath(numberOfSides: _kind.numberOfSides,
                                                                  centerPoint: centerPoint,
                                                                  radius: radius,
-                                                                 rotationInRadians: additionalRotation)
+                                                                 rotationInRadians: totalRotation)
                         
                         let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
                         
@@ -220,9 +220,9 @@ public struct TiledPolygon: View, TileablePolygonProtocol {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Square())
-        .interTileSpacing(6)
-        .staggerEffect(StaggerEffect(0.5))
+        .kind(EquilateralTriangle())
+        .interTileSpacing(4)
+        .staggerEffect(StaggerEffect(0.0))
         .fillColorPattern(Color.viridisPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 92))
         .background(backgroundColor)

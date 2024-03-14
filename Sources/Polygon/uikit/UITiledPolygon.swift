@@ -10,7 +10,7 @@ import UIKit
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
 @IBDesignable
-public class UITiledPolygon: UIView, TileablePolygonProtocol {
+public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPath {
     
     /// kind of polygon that can be tiled on a euclydian plane
     open var tileablePolygonKind: any TileablePolygonKind = Square() {
@@ -41,7 +41,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
         }
     }
     
-    /// Rotation angle expressed in degrees (for ex: 45°) or radians (for ex: π/4)
+    /// Rotation angle expressed in degrees (45°) or radians (π/4)
     open var rotationAngle: CommonAngle = .zero {
         didSet {
             setNeedsDisplay()
@@ -175,25 +175,30 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol {
                     // added on the outside of the shape
                     let radius = min(boundingRect.width, boundingRect.height) / 2.0 - interTileSpacing / 2.0
                     
-                    var additionalRotation: CGFloat?
+                    var totalRotation = tileablePolygonKind.initialRotation.radians
                     switch tileablePolygonKind {
                     case is EquilateralTriangle:
                         if tileX.isOdd() {
                             //we need to reverse the rotation 180 degrees when we are tiling odd columns for
                             //triangles
-                            additionalRotation = CommonAngle(radians: layoutMetrics.initialShapeRotation + Double.pi).radians
+                            totalRotation += Double.pi
                         }
                     default:
                         // other shapes do not need additional rotation
                         break
                     }
                     
-                    let initialPath = drawInitialPolygonPath(for: tileablePolygonKind,
-                                                             centerPoint: centerPoint,
-                                                             radius: radius,
-                                                             rotationInRadians: additionalRotation)
                     
-                    let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
+                    let initialPath = drawInitialPolygonPath(numberOfSides: tileablePolygonKind.numberOfSides,
+                                                              centerPoint: centerPoint,
+                                                              radius: radius,
+                                                              rotationInRadians: totalRotation)
+                    
+                    let scaledPolygonPath = scale(polygonPath: initialPath,
+                                                  rect: boundingRect,
+                                                  originalCenter: centerPoint,
+                                                  reCenter: true,
+                                                  borderWidth: nil)
                     
                     // because we start tiling -1 column first, we need to adjust the loop counter
                     // so that first visible polygon on the upper left corner is the first color in

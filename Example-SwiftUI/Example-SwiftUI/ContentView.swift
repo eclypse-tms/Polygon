@@ -49,8 +49,6 @@ struct ContentView: View {
     }
     
     private func tiledPolygons() -> some View {
-        
-        
         let stack = ZStack(alignment: .bottomTrailing, content: {
             polygonBuilder()
             
@@ -75,7 +73,7 @@ struct ContentView: View {
                         }
                     })
                     .padding(8)
-                    .background(Color.white)
+                    .background(Color.background)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(8)

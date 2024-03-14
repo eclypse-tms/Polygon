@@ -1,14 +1,14 @@
 //
-//  Color+Hex.swift
+//  UIColor+Extensions.swift
 //
 //
-//  Created by eclypse on 3/8/24.
+//  Created by eclypse on 3/14/24.
 //
 
-import SwiftUI
+import UIKit
 
-public extension Color {
-    init(hex: String) {
+public extension UIColor {
+    convenience init(hex: String) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
         
@@ -26,7 +26,7 @@ public extension Color {
                 red = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
                 green = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
                 blue = CGFloat(rgb & 0x0000FF) / 255.0
-
+                
             } else if length == 8 {
                 red = CGFloat((rgb & 0xFF000000) >> 24) / 255.0
                 green = CGFloat((rgb & 0x00FF0000) >> 16) / 255.0
@@ -35,9 +35,8 @@ public extension Color {
             }
         }
         
-        self.init(red: red, green: green, blue: blue, opacity: alpha)
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
     }
-    
     
     /// Viridis palette is colorblind-friendly, retain representational clarity in greyscale, and are generally aesthetically pleasing.
     ///
@@ -45,15 +44,15 @@ public extension Color {
     /// the palettes in R, D3js, and others.
     ///
     /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
-    static var viridisPalette: [Color] {
-        return [Color(hex: "fde725"),
-            Color(hex: "a0da39"),
-            Color(hex: "4ac16d"),
-            Color(hex: "1fa187"),
-            Color(hex: "277f8e"),
-            Color(hex: "365c8d"),
-            Color(hex: "46327e"),
-            Color(hex: "440154")
+    static var viridisPalette: [UIColor] {
+        return [UIColor(hex: "fde725"),
+            UIColor(hex: "a0da39"),
+            UIColor(hex: "4ac16d"),
+            UIColor(hex: "1fa187"),
+            UIColor(hex: "277f8e"),
+            UIColor(hex: "365c8d"),
+            UIColor(hex: "46327e"),
+            UIColor(hex: "440154")
         ]
     }
     
@@ -63,15 +62,15 @@ public extension Color {
     /// the palettes in R, D3js, and others.
     ///
     /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
-    static var magmaPalette: [Color] {
-        return [Color(hex: "fcfdbf"),
-            Color(hex: "febb81"),
-            Color(hex: "f8765c"),
-            Color(hex: "d3436e"),
-            Color(hex: "982d80"),
-            Color(hex: "5f187f"),
-            Color(hex: "221150"),
-            Color(hex: "000004")
+    static var magmaPalette: [UIColor] {
+        return [UIColor(hex: "fcfdbf"),
+            UIColor(hex: "febb81"),
+            UIColor(hex: "f8765c"),
+            UIColor(hex: "d3436e"),
+            UIColor(hex: "982d80"),
+            UIColor(hex: "5f187f"),
+            UIColor(hex: "221150"),
+            UIColor(hex: "000004")
         ]
     }
     
@@ -82,15 +81,15 @@ public extension Color {
     /// the palettes in R, D3js, and others.
     ///
     /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
-    static var infernoPalette: [Color] {
-        return [Color(hex: "fcffa4"),
-            Color(hex: "fac228"),
-            Color(hex: "f57d15"),
-            Color(hex: "d44842"),
-            Color(hex: "9f2a63"),
-            Color(hex: "65156e"),
-            Color(hex: "280b53"),
-            Color(hex: "000004")
+    static var infernoPalette: [UIColor] {
+        return [UIColor(hex: "fcffa4"),
+            UIColor(hex: "fac228"),
+            UIColor(hex: "f57d15"),
+            UIColor(hex: "d44842"),
+            UIColor(hex: "9f2a63"),
+            UIColor(hex: "65156e"),
+            UIColor(hex: "280b53"),
+            UIColor(hex: "000004")
         ]
     }
     
@@ -100,28 +99,28 @@ public extension Color {
     /// the palettes in R, D3js, and others.
     ///
     /// - SeeAlso: [Matplotlib](https://bids.github.io/colormap/)
-    static var plasmaPalette: [Color] {
-        return [Color(hex: "f0f921"),
-            Color(hex: "febd2a"),
-            Color(hex: "f48849"),
-            Color(hex: "db5c68"),
-            Color(hex: "b83289"),
-            Color(hex: "8b0aa5"),
-            Color(hex: "5302a3"),
-            Color(hex: "0d0887")
+    static var plasmaPalette: [UIColor] {
+        return [UIColor(hex: "f0f921"),
+            UIColor(hex: "febd2a"),
+            UIColor(hex: "f48849"),
+            UIColor(hex: "db5c68"),
+            UIColor(hex: "b83289"),
+            UIColor(hex: "8b0aa5"),
+            UIColor(hex: "5302a3"),
+            UIColor(hex: "0d0887")
         ]
     }
     
     /// rainbow colors for testing purposes
-    static var rainbowPalette: [Color] {
-        return [Color(hex: "FF0000"),
-            Color(hex: "FF7F00"),
-            Color(hex: "f48849"),
-            Color(hex: "FFFF00"),
-            Color(hex: "00FF00"),
-            Color(hex: "0000FF"),
-            Color(hex: "4B0082"),
-            Color(hex: "9400D3")
+    static var rainbowPalette: [UIColor] {
+        return [UIColor(hex: "FF0000"),
+            UIColor(hex: "FF7F00"),
+            UIColor(hex: "f48849"),
+            UIColor(hex: "FFFF00"),
+            UIColor(hex: "00FF00"),
+            UIColor(hex: "0000FF"),
+            UIColor(hex: "4B0082"),
+            UIColor(hex: "9400D3")
         ]
     }
 }

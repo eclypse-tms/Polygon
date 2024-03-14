@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable
-open class AnimatableUIPolygon: UIView, PolygonProtocol {
+open class AnimatableUIPolygon: UIView, UIPolygonProtocol, UIPolygonBezierPath {
     open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {
@@ -87,13 +87,16 @@ open class AnimatableUIPolygon: UIView, PolygonProtocol {
         drawDashes(rect: bounds, center: centerPoint, radius: radius)
 
         // Apply the rotation transformation to the path
-        let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+        let polygonPath = drawInitialPolygonPath(numberOfSides: numberOfSides,
+                                                 centerPoint: centerPoint,
+                                                 radius: radius,
+                                                 rotationInRadians: rotationAngle.toRadians())
 
         // scale the polygon to fit the bounds
-        scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint, reCenter: true)
+        let scaledPolygon = scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint, reCenter: true, borderWidth: borderWidth)
         
         let shapePath = CAShapeLayer()
-        shapePath.path = polygonPath.cgPath
+        shapePath.path = scaledPolygon.cgPath
         shapePath.frame = self.bounds
         shapePath.masksToBounds = true
         shapePath.fillColor = fillColor.cgColor
@@ -111,10 +114,4 @@ extension AnimatableUIPolygon: CAAnimationDelegate {
         animationCompletionListener = nil
     }
 }
-#elseif canImport(AppKit)
-import AppKit
-open class AnimatableUIPolygon {
-    // this class doesn't do anything in AppKit
-}
-
 #endif

@@ -10,7 +10,7 @@ import UIKit
 
 /// UIPolygon allows you to add a polygon of any sides to your UIKit based views
 @IBDesignable
-open class UIPolygon: UIView, PolygonProtocol {
+open class UIPolygon: UIView, UIPolygonProtocol, UIPolygonBezierPath {
     @IBInspectable open var showDashes: Bool = false {
         didSet {
             setNeedsDisplay()
@@ -81,18 +81,25 @@ open class UIPolygon: UIView, PolygonProtocol {
         drawDashes(rect: rect, center: centerPoint, radius: radius)
         
         // Apply the rotation transformation to the path
-        let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+        let polygonPath = drawInitialPolygonPath(numberOfSides: self.numberOfSides,
+                                                 centerPoint: centerPoint,
+                                                 radius: radius,
+                                                 rotationInRadians: rotationAngle.toRadians())
         
         // scale the polygon to fit the bounds and re-center the polygon
-        scale(polygonPath: polygonPath, rect: rect, originalCenter: centerPoint, reCenter: true)
+        let scaledPath = scale(polygonPath: polygonPath,
+                               rect: rect,
+                               originalCenter: centerPoint,
+                               reCenter: true,
+                               borderWidth: borderWidth)
         
         // apply colors and border
         fillColor.setFill()
-        polygonPath.fill()
+        scaledPath.fill()
 
         borderColor.setStroke()
-        polygonPath.lineWidth = borderWidth
-        polygonPath.stroke()
+        scaledPath.lineWidth = borderWidth
+        scaledPath.stroke()
     }
 }
 #endif
