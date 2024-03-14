@@ -69,7 +69,9 @@
                                                                 <command title="Item 2" id="S8P-HF-y2Z"/>
                                                             </children>
                                                         </menu>
-                                                        <state key="normal" title="Button"/>
+                                                        <state key="normal" title="Button">
+                                                            <color key="titleColor" systemColor="labelColor"/>
+                                                        </state>
                                                     </button>
                                                 </subviews>
                                             </stackView>
@@ -83,22 +85,33 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" horizontalHuggingPriority="240" horizontalCompressionResistancePriority="740" translatesAutoresizingMaskIntoConstraints="NO" id="XyL-WX-bkA">
-                                                        <rect key="frame" x="40" y="16.5" width="191" height="1"/>
+                                                        <rect key="frame" x="40" y="16.5" width="135" height="1"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="1" id="Qgc-M9-WJj"/>
                                                         </constraints>
                                                     </view>
                                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="onb-Sp-bMD">
-                                                        <rect key="frame" x="239" y="1.5" width="185" height="32"/>
+                                                        <rect key="frame" x="183" y="1.5" width="185" height="32"/>
                                                         <segments>
                                                             <segment title="Fixed Width"/>
                                                             <segment title="Target"/>
                                                         </segments>
+                                                        <connections>
+                                                            <action selector="didChangeSize:" destination="BYZ-38-t0r" eventType="valueChanged" id="fcZ-BW-j86"/>
+                                                        </connections>
                                                     </segmentedControl>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="XkP-NY-ccR">
-                                                        <rect key="frame" x="432" y="0.0" width="48" height="34"/>
+                                                        <rect key="frame" x="376" y="0.0" width="48" height="34"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="48" id="HBe-kd-W4E"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                    </textField>
+                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eok-XY-iTS">
+                                                        <rect key="frame" x="432" y="0.0" width="48" height="34"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="48" id="iIx-DJ-l6O"/>
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
@@ -127,6 +140,9 @@
                                                                 <variation key="widthClass=regular" constant="240"/>
                                                             </constraint>
                                                         </constraints>
+                                                        <connections>
+                                                            <action selector="didChangeTilePadding:" destination="BYZ-38-t0r" eventType="valueChanged" id="UpU-kX-d2j"/>
+                                                        </connections>
                                                     </slider>
                                                 </subviews>
                                             </stackView>
@@ -151,6 +167,9 @@
                                                             <segment title="Single"/>
                                                             <segment title="Multi"/>
                                                         </segments>
+                                                        <connections>
+                                                            <action selector="didSelectSingleOrMultiColor:" destination="BYZ-38-t0r" eventType="valueChanged" id="hPb-un-V09"/>
+                                                        </connections>
                                                     </segmentedControl>
                                                 </subviews>
                                             </stackView>
@@ -164,14 +183,26 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" horizontalHuggingPriority="240" horizontalCompressionResistancePriority="740" translatesAutoresizingMaskIntoConstraints="NO" id="Nck-7N-Bs0">
-                                                        <rect key="frame" x="83" y="17.5" width="353" height="1"/>
+                                                        <rect key="frame" x="83" y="17.5" width="304" height="1"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="1" id="Cvf-QX-VSa"/>
                                                         </constraints>
                                                     </view>
                                                     <colorWell contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="o1r-Vc-DIr">
-                                                        <rect key="frame" x="444" y="0.0" width="36" height="36"/>
+                                                        <rect key="frame" x="395" y="0.0" width="36" height="36"/>
                                                     </colorWell>
+                                                    <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" changesSelectionAsPrimaryAction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pte-a1-wxi">
+                                                        <rect key="frame" x="439" y="3" width="41" height="30"/>
+                                                        <menu key="menu" id="nu6-OS-VfB">
+                                                            <children>
+                                                                <command title="Item 1" id="OMP-eN-uXw"/>
+                                                                <command title="Item 2" id="uoQ-9A-ki4"/>
+                                                            </children>
+                                                        </menu>
+                                                        <state key="normal" title="Button">
+                                                            <color key="titleColor" systemColor="labelColor"/>
+                                                        </state>
+                                                    </button>
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="qFd-F2-yHS">
@@ -196,6 +227,9 @@
                                                                 <variation key="widthClass=regular" constant="240"/>
                                                             </constraint>
                                                         </constraints>
+                                                        <connections>
+                                                            <action selector="didChangeStaggerValue:" destination="BYZ-38-t0r" eventType="valueChanged" id="gTX-4y-jf2"/>
+                                                        </connections>
                                                     </slider>
                                                 </subviews>
                                             </stackView>
@@ -245,9 +279,20 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="colorPicker" destination="o1r-Vc-DIr" id="kNh-e3-BxZ"/>
+                        <outlet property="fixedWidthSizeText" destination="XkP-NY-ccR" id="cSs-Fj-AZo"/>
                         <outlet property="individualPolygonsStackView" destination="pfo-vP-reV" id="pu4-tJ-3Wz"/>
                         <outlet property="mainStackView" destination="Lp0-GT-SDH" id="EM5-w2-44l"/>
+                        <outlet property="palettePicker" destination="Pte-a1-wxi" id="Lkn-Fz-vPw"/>
+                        <outlet property="pickAColorLabel" destination="ja3-yi-QFh" id="uY8-Xp-Iwx"/>
                         <outlet property="polygonSelectorSegment" destination="crd-Zr-Ljf" id="AGh-oZ-aJd"/>
+                        <outlet property="selectPolygonKind" destination="GPG-CI-xUC" id="8tN-or-Y7v"/>
+                        <outlet property="singleOrMultiColorSelection" destination="0kt-Et-56o" id="qyp-hZ-Css"/>
+                        <outlet property="sizeSelectorSegment" destination="onb-Sp-bMD" id="BbF-Vn-VDi"/>
+                        <outlet property="staggerControls" destination="qFd-F2-yHS" id="rmH-Tz-Mcn"/>
+                        <outlet property="staggerEffectSlider" destination="5fb-bh-Kbl" id="ee2-oT-7md"/>
+                        <outlet property="targetSizeText" destination="eok-XY-iTS" id="yIs-cE-jJk"/>
+                        <outlet property="tilePaddingSlider" destination="xUP-ot-tfp" id="hce-OQ-TIz"/>
                         <outlet property="tiledPolygon" destination="jTn-Pq-IQ0" id="yJi-fO-SA3"/>
                         <outlet property="tiledPolygonControlPanel" destination="B3c-fX-1N0" id="hDa-k3-bZQ"/>
                     </connections>
@@ -258,6 +303,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -7,12 +7,16 @@
 
 import Foundation
 
-public protocol TileablePolygonKind: Hashable, Codable {
+public protocol TileablePolygonKind: Hashable, Identifiable {
+    var id: String { get }
     var numberOfSides: Int { get }
     var initialRotation: CommonAngle { get }
 }
 
 public struct EquilateralTriangle: TileablePolygonKind {
+    public var id: String {
+        return "EquilateralTriangle-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
+    }
     /// triangle has 3 sides. hard coded.
     public let numberOfSides: Int
     
@@ -27,6 +31,9 @@ public struct EquilateralTriangle: TileablePolygonKind {
 }
 
 public struct Square: TileablePolygonKind {
+    public var id: String {
+        return "Square-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
+    }
     /// square has 4 sides. hard coded.
     public let numberOfSides: Int
     
@@ -41,6 +48,9 @@ public struct Square: TileablePolygonKind {
 }
 
 public struct Hexagon: TileablePolygonKind {
+    public var id: String {
+        return "Hexagon-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
+    }
     /// hexagons have 6 sides. hard coded.
     public let numberOfSides: Int
     
@@ -55,6 +65,9 @@ public struct Hexagon: TileablePolygonKind {
 }
 
 public struct Octagon: TileablePolygonKind {
+    public var id: String {
+        return "Octagon-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
+    }
     /// octagons have 8 sides. hard coded.
     public let numberOfSides: Int
     

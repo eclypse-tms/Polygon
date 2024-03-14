@@ -14,6 +14,7 @@
 		B110BFF12BA206B7005F5680 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B110BFF02BA206B7005F5680 /* Assets.xcassets */; };
 		B110BFF42BA206B7005F5680 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B110BFF22BA206B7005F5680 /* LaunchScreen.storyboard */; };
 		B110BFFD2BA20CAE005F5680 /* Polygon in Frameworks */ = {isa = PBXBuildFile; productRef = B110BFFC2BA20CAE005F5680 /* Polygon */; };
+		B1A613452BA3855C00D20E06 /* DataForDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A613442BA3855C00D20E06 /* DataForDemo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		B110BFF32BA206B7005F5680 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B110BFF52BA206B7005F5680 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B110BFFE2BA20DBB005F5680 /* Example-UIKit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Example-UIKit.entitlements"; sourceTree = "<group>"; };
+		B1A613442BA3855C00D20E06 /* DataForDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataForDemo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				B110BFE72BA206B6005F5680 /* AppDelegate.swift */,
 				B110BFE92BA206B6005F5680 /* SceneDelegate.swift */,
 				B110BFEB2BA206B6005F5680 /* ViewController.swift */,
+				B1A613442BA3855C00D20E06 /* DataForDemo.swift */,
 				B110BFED2BA206B6005F5680 /* Main.storyboard */,
 				B110BFF02BA206B7005F5680 /* Assets.xcassets */,
 				B110BFF22BA206B7005F5680 /* LaunchScreen.storyboard */,
@@ -148,6 +151,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1A613452BA3855C00D20E06 /* DataForDemo.swift in Sources */,
 				B110BFEC2BA206B6005F5680 /* ViewController.swift in Sources */,
 				B110BFE82BA206B6005F5680 /* AppDelegate.swift in Sources */,
 				B110BFEA2BA206B6005F5680 /* SceneDelegate.swift in Sources */,

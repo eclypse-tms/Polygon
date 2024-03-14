@@ -8,21 +8,21 @@
 #if canImport(UIKit)
 import UIKit
 
-/// UIPolygon allows you to add a polygon of any sides to your UIKit based views
 @IBDesignable
 open class UIPolygon: UIView, UIPolygonProtocol, UIPolygonBezierPath {
+    open var animationCompletionListener: ((Bool) -> Void)?
+    
     @IBInspectable open var showDashes: Bool = false {
         didSet {
             setNeedsDisplay()
         }
     }
     
-    @IBInspectable open var fillColor: UIColor = UIColor.systemBlue {
+    @IBInspectable open var fillColor: UIColor = UIColor.lightGray {
         didSet {
             setNeedsDisplay()
         }
     }
-    
     @IBInspectable open var borderColor: UIColor = UIColor.black {
         didSet {
             setNeedsDisplay()
@@ -51,55 +51,70 @@ open class UIPolygon: UIView, UIPolygonProtocol, UIPolygonBezierPath {
         }
     }
     
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        configurePolygon()
     }
     
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
+    
+    /// convience function to apply a basic animation to the polygon sublayer.
+    ///
+    /// Instead of calling this function, you can get a hold of the CALayer directly
+    /// by invoking [UIPolygon.polygonLayer].
+    /// - Parameters:
+    ///   - animation: animation to use for the polygon layer
+    ///   - completion: optional callback when the animation is finished
+    open func apply(animation: CABasicAnimation, completion: ((Bool) -> Void)? = nil) {
+        animation.delegate = self
+        animationCompletionListener = completion
+        self.polygonLayer?.add(animation, forKey: animation.keyPath)
     }
     
-    open func commonInit() {
-        self.layer.needsDisplayOnBoundsChange = true
-        self.contentMode = .scaleAspectFit
-    }
+    open var polygonLayer: CAShapeLayer!
     
-    override open func draw(_ rect: CGRect) {
+    open func configurePolygon() {
         guard numberOfSides > 2 else { return }
-        
+
         // we need to calculate the middle point of our frame
         // we will use this center as an anchor to draw our polygon
-        let centerPoint = CGPoint(x: rect.midX, y: rect.midY)
-        
+        let centerPoint = CGPoint(x: bounds.midX, y: bounds.midY)
+
         // the polygon points will be located on a circle - hence the radius calculation
         // this radius calculation also takes into account the border width which gets
         // added on the outside of the shape
-        let radius = min(rect.width, rect.height) / 2.0 - borderWidth / 2.0
-        
-        drawDashes(rect: rect, center: centerPoint, radius: radius)
-        
+        let radius = min(bounds.width, bounds.height) / 2.0 - borderWidth / 2.0
+
+        drawDashes(rect: bounds, center: centerPoint, radius: radius)
+
         // Apply the rotation transformation to the path
-        let polygonPath = drawInitialPolygonPath(numberOfSides: self.numberOfSides,
+        let polygonPath = drawInitialPolygonPath(numberOfSides: numberOfSides,
                                                  centerPoint: centerPoint,
                                                  radius: radius,
                                                  rotationInRadians: rotationAngle.toRadians())
-        
-        // scale the polygon to fit the bounds and re-center the polygon
-        let scaledPath = scale(polygonPath: polygonPath,
-                               rect: rect,
-                               originalCenter: centerPoint,
-                               reCenter: true,
-                               borderWidth: borderWidth)
-        
-        // apply colors and border
-        fillColor.setFill()
-        scaledPath.fill()
 
-        borderColor.setStroke()
-        scaledPath.lineWidth = borderWidth
-        scaledPath.stroke()
+        // scale the polygon to fit the bounds
+        let scaledPolygon = scale(polygonPath: polygonPath, 
+                                  rect: bounds,
+                                  originalCenter: centerPoint,
+                                  reCenter: true, borderWidth: borderWidth)
+        
+        let shapePath = CAShapeLayer()
+        shapePath.path = scaledPolygon.cgPath
+        shapePath.frame = self.bounds
+        shapePath.masksToBounds = true
+        shapePath.fillColor = fillColor.cgColor
+        shapePath.strokeColor = borderColor.cgColor
+        shapePath.lineWidth = borderWidth
+        self.layer.addSublayer(shapePath)
+        self.polygonLayer?.removeFromSuperlayer()
+        self.polygonLayer = shapePath
+    }
+}
+
+extension UIPolygon: CAAnimationDelegate {
+    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        animationCompletionListener?(flag)
+        animationCompletionListener = nil
     }
 }
 #endif

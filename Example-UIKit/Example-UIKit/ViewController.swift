@@ -14,12 +14,22 @@ class ViewController: UIViewController {
     @IBOutlet private var individualPolygonsStackView: UIStackView!
     @IBOutlet private var tiledPolygon: UITiledPolygon!
     @IBOutlet private var tiledPolygonControlPanel: UIView!
-    
+    @IBOutlet private var selectPolygonKind: UIButton!
+    @IBOutlet private var sizeSelectorSegment: UISegmentedControl!
+    @IBOutlet private var fixedWidthSizeText: UITextField!
+    @IBOutlet private var targetSizeText: UITextField!
+    @IBOutlet private var tilePaddingSlider: UISlider!
+    @IBOutlet private var singleOrMultiColorSelection: UISegmentedControl!
+    @IBOutlet private var colorPicker: UIColorWell!
+    @IBOutlet private var palettePicker: UIButton!
+    @IBOutlet private var staggerEffectSlider: UISlider!
+    @IBOutlet private var pickAColorLabel: UILabel!
+    @IBOutlet private var staggerControls: UIStackView!
     
     private var topPaddingView: UIView!
     private var bottomPaddingView: UIView!
     private var animateButton: UIButton!
-    private var animatablePolygon: AnimatableUIPolygon!
+    private var animatablePolygon: UIPolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
     
 
@@ -48,10 +58,133 @@ class ViewController: UIViewController {
     private func configureTiledPolygon() {
         tiledPolygon.backgroundColor = .systemGray5
         tiledPolygon.isHidden = false //initial condition
+        tiledPolygon.polygonSize = TileablePolygonSize(horizontalPolygonTarget: 12)
+        tiledPolygon.tileablePolygonKind = Square()
         
         tiledPolygonControlPanel.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMinXMinYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner]
         tiledPolygonControlPanel.layer.cornerRadius = 12
         tiledPolygonControlPanel.clipsToBounds = true
+        
+        // polygon selection
+        let polygonTypeMenuOptions = TileablePolygonType.allCases.map { eachType -> UIAction in
+            return UIAction(title: eachType.displayName, identifier: UIAction.Identifier(eachType.id.rawValue), handler: { action in
+                self.handlePolygonType(action)
+            })
+        }
+        let polygonTypeMenu = UIMenu(children: polygonTypeMenuOptions)
+        selectPolygonKind.menu = polygonTypeMenu
+        
+        // polygon size
+        sizeSelectorSegment.selectedSegmentIndex = 1
+        fixedWidthSizeText.text = "64" //default value
+        targetSizeText.text = "12" //default value
+        fixedWidthSizeText.isHidden = true //hide it by default
+        
+        // inter tile space slider
+        tilePaddingSlider.value = 2.0 //default value
+        
+        // single or multi color selector
+        singleOrMultiColorSelection.selectedSegmentIndex = 0 //default
+        
+        // color well
+        colorPicker.addTarget(self, action: #selector(didChangeColor(_:)), for: .valueChanged)
+        
+        // color palette picker
+        let colorPaletteMenuOptions = ColorPalette.allCases.map { eachColorPalette -> UIAction in
+            return UIAction(title: eachColorPalette.displayName, identifier: UIAction.Identifier(eachColorPalette.id.rawValue), handler: { action in
+                self.handleColorPalette(action)
+            })
+        }
+        let colorPaletteMenu = UIMenu(children: colorPaletteMenuOptions)
+        palettePicker.menu = colorPaletteMenu
+        palettePicker.isHidden = true //hidden by default
+        
+        //stagger effect
+        staggerEffectSlider.value = 0.0 //default value
+        
+        
+    }
+    
+    @IBAction
+    private func didChangeStaggerValue(_ sender: UISlider) {
+        tiledPolygon.staggerEffect = StaggerEffect(CGFloat(sender.value))
+    }
+    
+    @objc
+    private func didChangeColor(_ sender: UIColorWell) {
+        tiledPolygon.fillColor = sender.selectedColor ?? UIColor.tintColor
+    }
+    
+    @IBAction
+    private func didChangeTilePadding(_ sender: UISlider) {
+        tiledPolygon.interTileSpacing = CGFloat(sender.value)
+    }
+    
+    @IBAction
+    private func didChangeSize(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0: //fixed width
+            fixedWidthSizeText.isHidden = false
+            targetSizeText.isHidden = true
+            let parsedFixedWidthSize = Int(fixedWidthSizeText.text ?? "64") ?? 64
+            tiledPolygon.polygonSize = TileablePolygonSize(fixedWidth: CGFloat(parsedFixedWidthSize))
+        default: // target size
+            fixedWidthSizeText.isHidden = true
+            targetSizeText.isHidden = false
+            let parsedTargetSize = Int(targetSizeText.text ?? "12") ?? 12
+            tiledPolygon.polygonSize = TileablePolygonSize(horizontalPolygonTarget: CGFloat(parsedTargetSize))
+        }
+    }
+    
+    @IBAction
+    private func didSelectSingleOrMultiColor(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0: //single color selection
+            colorPicker.isHidden = false
+            palettePicker.isHidden = true
+            tiledPolygon.fillColor = colorPicker.selectedColor ?? UIColor.tintColor
+        default: // multi color selection
+            colorPicker.isHidden = true
+            palettePicker.isHidden = false
+            tiledPolygon.fillColorPattern = UIColor.viridisPalette
+        }
+    }
+    
+    private func handlePolygonType(_ action: UIAction) {
+        switch action.identifier.rawValue {
+        case TileablePolygonType.equilateralTriangle.id.rawValue:
+            tiledPolygon.tileablePolygonKind = EquilateralTriangle()
+            staggerControls.isHidden = false
+        case TileablePolygonType.square.id.rawValue:
+            tiledPolygon.tileablePolygonKind = Square()
+            staggerControls.isHidden = false
+        case TileablePolygonType.octagon.id.rawValue:
+            tiledPolygon.tileablePolygonKind = Octagon()
+            staggerControls.isHidden = false
+        case TileablePolygonType.hexagon.id.rawValue:
+            tiledPolygon.tileablePolygonKind = Hexagon()
+            //hexagon cannot be staggered at the moment
+            staggerControls.isHidden = true
+        default:
+            break
+        }
+    }
+    
+    private func handleColorPalette(_ action: UIAction) {
+        switch action.identifier.rawValue {
+        case ColorPalette.viridis.id.rawValue:
+            tiledPolygon.fillColorPattern = UIColor.viridisPalette
+        case ColorPalette.magma.id.rawValue:
+            tiledPolygon.fillColorPattern = UIColor.magmaPalette
+        case ColorPalette.inferno.id.rawValue:
+            tiledPolygon.fillColorPattern = UIColor.infernoPalette
+        case ColorPalette.plasma.id.rawValue:
+            tiledPolygon.fillColorPattern = UIColor.plasmaPalette
+        case ColorPalette.rainbow.id.rawValue:
+            tiledPolygon.fillColorPattern = UIColor.rainbowPalette
+        default:
+            break
+        }
     }
     
     private func configureTopPadding() {
@@ -65,47 +198,47 @@ class ViewController: UIViewController {
         topStackView.alignment = .fill
         topStackView.distribution = .equalSpacing
         
-        let triangle = AnimatableUIPolygon()
+        let triangle = UIPolygon()
         triangle.backgroundColor = .systemGray5
         triangle.fillColor = UIColor.tintColor
         triangle.numberOfSides = 3
         triangle.rotationAngle = 30
         addConstrainedSubview(triangle, to: topStackView)
         
-        let rectangle = AnimatableUIPolygon()
+        let rectangle = UIPolygon()
         rectangle.backgroundColor = .systemGray5
         rectangle.fillColor = UIColor.tintColor
         rectangle.numberOfSides = 4
         rectangle.rotationAngle = 45
         addConstrainedSubview(rectangle, to: topStackView)
         
-        let pentagon = AnimatableUIPolygon()
+        let pentagon = UIPolygon()
         pentagon.backgroundColor = .systemGray5
         pentagon.fillColor = UIColor.tintColor
         pentagon.numberOfSides = 5
         pentagon.rotationAngle = -18
         addConstrainedSubview(pentagon, to: topStackView)
         
-        let hexagon = AnimatableUIPolygon()
+        let hexagon = UIPolygon()
         hexagon.backgroundColor = .systemGray5
         hexagon.fillColor = UIColor.tintColor
         hexagon.numberOfSides = 6
         addConstrainedSubview(hexagon, to: topStackView)
         
-        let septagon = AnimatableUIPolygon()
+        let septagon = UIPolygon()
         septagon.backgroundColor = .systemGray5
         septagon.fillColor = UIColor.tintColor
         septagon.numberOfSides = 7
         septagon.rotationAngle = -90
         addConstrainedSubview(septagon, to: topStackView)
         
-        let octagon = AnimatableUIPolygon()
+        let octagon = UIPolygon()
         octagon.backgroundColor = .systemGray5
         octagon.fillColor = UIColor.tintColor
         octagon.numberOfSides = 8
         addConstrainedSubview(octagon, to: topStackView)
         
-        let nanogon = AnimatableUIPolygon()
+        let nanogon = UIPolygon()
         nanogon.backgroundColor = .systemGray5
         nanogon.fillColor = UIColor.tintColor
         nanogon.numberOfSides = 9
@@ -121,45 +254,45 @@ class ViewController: UIViewController {
         bottomStackView.alignment = .fill
         bottomStackView.distribution = .equalSpacing
         
-        let tengon = AnimatableUIPolygon()
+        let tengon = UIPolygon()
         tengon.backgroundColor = .systemGray5
         tengon.fillColor = UIColor.tintColor
         tengon.numberOfSides = 10
         addConstrainedSubview(tengon, to: bottomStackView)
         
-        let elevengon = AnimatableUIPolygon()
+        let elevengon = UIPolygon()
         elevengon.backgroundColor = .systemGray5
         elevengon.fillColor = UIColor.tintColor
         elevengon.numberOfSides = 11
         addConstrainedSubview(elevengon, to: bottomStackView)
         
-        let twelvegon = AnimatableUIPolygon()
+        let twelvegon = UIPolygon()
         twelvegon.backgroundColor = .systemGray5
         twelvegon.fillColor = UIColor.tintColor
         twelvegon.numberOfSides = 12
         addConstrainedSubview(twelvegon, to: bottomStackView)
         
-        let thirteengon = AnimatableUIPolygon()
+        let thirteengon = UIPolygon()
         thirteengon.backgroundColor = .systemGray5
         thirteengon.fillColor = UIColor.tintColor
         thirteengon.numberOfSides = 13
         addConstrainedSubview(thirteengon, to: bottomStackView)
         
-        let fourteengon = AnimatableUIPolygon()
+        let fourteengon = UIPolygon()
         fourteengon.backgroundColor = .systemGray5
         fourteengon.fillColor = UIColor.tintColor
         fourteengon.numberOfSides = 14
         addConstrainedSubview(fourteengon, to: bottomStackView)
         
-        let fifteengon = AnimatableUIPolygon()
+        let fifteengon = UIPolygon()
         fifteengon.backgroundColor = .systemGray5
         fifteengon.fillColor = UIColor.tintColor
         fifteengon.numberOfSides = 15
         addConstrainedSubview(fifteengon, to: bottomStackView)
         
-        let sixteengon = AnimatableUIPolygon()
+        let sixteengon = UIPolygon()
         sixteengon.backgroundColor = .systemGray5
-        sixteengon.fillColor = UIColor.purple
+        sixteengon.fillColor = UIColor.tintColor
         sixteengon.numberOfSides = 16
         addConstrainedSubview(sixteengon, to: bottomStackView)
         individualPolygonsStackView.addArrangedSubview(bottomStackView)
@@ -189,7 +322,7 @@ class ViewController: UIViewController {
             animateButton.widthAnchor.constraint(equalToConstant: 120)
         ])
         
-        animatablePolygon = AnimatableUIPolygon()
+        animatablePolygon = UIPolygon()
         animatablePolygon.backgroundColor = .systemGray5
         animatablePolygon.fillColor = UIColor.systemPurple
         animatablePolygon.numberOfSides = 5
@@ -291,9 +424,11 @@ class ViewController: UIViewController {
         case 0:
             individualPolygonsStackView.isHidden = false
             tiledPolygon.isHidden = true
+            tiledPolygonControlPanel.isHidden = true
         default:
             individualPolygonsStackView.isHidden = true
             tiledPolygon.isHidden = false
+            tiledPolygonControlPanel.isHidden = false
         }
     }
 }
@@ -319,7 +454,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(paddingView)
     
-    let triangle = AnimatableUIPolygon()
+    let triangle = UIPolygon()
     triangle.backgroundColor = .systemGray5
     triangle.fillColor = UIColor.tintColor
     triangle.numberOfSides = 3
@@ -330,7 +465,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(triangle)
     
-    let rectangle = AnimatableUIPolygon()
+    let rectangle = UIPolygon()
     rectangle.backgroundColor = .systemGray5
     rectangle.fillColor = UIColor.tintColor
     rectangle.numberOfSides = 4
@@ -341,7 +476,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(rectangle)
     
-    let pentagon = AnimatableUIPolygon()
+    let pentagon = UIPolygon()
     pentagon.backgroundColor = .systemGray5
     pentagon.fillColor = UIColor.tintColor
     pentagon.numberOfSides = 5
@@ -352,7 +487,7 @@ struct ConstraintPair {
     ])
     aStackView.addArrangedSubview(pentagon)
     
-    let hexagon = AnimatableUIPolygon()
+    let hexagon = UIPolygon()
     hexagon.backgroundColor = .systemGray5
     hexagon.fillColor = UIColor.tintColor
     hexagon.numberOfSides = 6

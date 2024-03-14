@@ -32,8 +32,9 @@ public protocol UIPolygonBezierPath {
 }
 
 extension UIPolygonBezierPath {
-    
+
     /// scales the bezier path to fit the bounding rectangle, if necessary
+    @discardableResult
     public func scale(polygonPath: UIBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool, borderWidth: CGFloat?) -> UIBezierPath {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = polygonPath.bounds
@@ -72,6 +73,7 @@ extension UIPolygonBezierPath {
     ///   - radius: radius of the biggest circle that can be drawn in its bounding rectangle
     ///   - rotationAngle: optional rotation to apply in radians
     /// - Returns: a path of the polygon
+    @discardableResult
     public func drawInitialPolygonPath(numberOfSides: Int,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
@@ -99,6 +101,7 @@ extension UIPolygonBezierPath {
     }
     
     /// rotates the given bezier path and re-centers the shape in the bounding rectangle
+    @discardableResult
     public func rotate(polygonPath: UIBezierPath, originalCenter: CGPoint, reCenter: Bool, rotationAngle: CGFloat) -> UIBezierPath {
         if abs(rotationAngle.truncatingRemainder(dividingBy: 360.0)) < 0.01 {
             // no rotation needs to be applied, since rotation angle is essentially zero

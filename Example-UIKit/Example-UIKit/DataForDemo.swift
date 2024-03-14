@@ -1,12 +1,11 @@
 //
-//  DataForDemo.swift
-//  Example-SwiftUI
+//  DemoData.swift
+//  Example-UIKit
 //
-//  Created by eclypse on 3/11/24.
+//  Created by Nessa Kucuk, Turker on 3/14/24.
 //
 
-import Foundation
-import SwiftUI
+import UIKit
 
 enum TileablePolygonType: String, CaseIterable, Identifiable {
     case equilateralTriangle
@@ -78,19 +77,18 @@ enum ColorPalette: String, CaseIterable, Identifiable {
         }
     }
     
-    var associatedPalette: [Color] {
+    var associatedPalette: [UIColor] {
         switch self {
         case .viridis:
-            Color.viridisPalette
+            UIColor.viridisPalette
         case .magma:
-            Color.magmaPalette
+            UIColor.magmaPalette
         case .inferno:
-            Color.infernoPalette
+            UIColor.infernoPalette
         case .plasma:
-            Color.plasmaPalette
+            UIColor.plasmaPalette
         case .rainbow:
-            Color.rainbowPalette
+            UIColor.rainbowPalette
         }
     }
 }
-
