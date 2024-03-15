@@ -23,6 +23,10 @@ Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely
   <img src="./assets/tiled_polygon_preview.jpg" width="499" height="358.5">
 </p>
 
+<br/>
+
+## Works in iOS, macOS and macCatalyst
+
 ## Polygon Usage - SwiftUI
 
 ```
@@ -66,14 +70,14 @@ tiledPolygon.backgroundColor = .systemGray5 // inter-tiling color
 
 ## Individual Polygon Result
 <p align="center">
-    <img src="./assets/tileable_polygons_demo.gif" width="531" height="176.5"  alt="polygon preview">
+    <img src="./assets/demo.jpg" width="531" height="176.5"  alt="polygon preview">
 </p>
 
 <br/>
 
 ## Tiled Polygons Result
 <p align="center">
-    <img src="./assets/demo.jpg" width="600" height="426"  alt="tiled polygons preview">
+    <img src="./assets/tileable_polygons_demo.gif" width="600" height="426"  alt="tiled polygons preview">
 </p>
 
 <br/>
@@ -95,6 +99,9 @@ Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/So
 
 ## Breaking Change with version 2
 Since we added support for SwiftUI, previously named `Polygon` class has been renamed to `UIPolygon` to follow the UIKit's convention. The class name `Polygon` is now used for SwiftUI variation.
+
+## Breaking Change with version 3
+Now all UIPolygons are animatable.
 
 <br/>
 
