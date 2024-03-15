@@ -66,6 +66,7 @@ class ViewController: UIViewController {
         tiledPolygon.isHidden = false //initial condition
         tiledPolygon.polygonSize = TileablePolygonSize(horizontalPolygonTarget: 12)
         tiledPolygon.tileablePolygonKind = Square()
+        tiledPolygon.interTileSpacing = 2.0
         
         tiledPolygonControlPanel.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMinXMinYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner]
         tiledPolygonControlPanel.layer.cornerRadius = 12

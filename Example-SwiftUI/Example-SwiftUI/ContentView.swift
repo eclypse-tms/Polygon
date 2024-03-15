@@ -10,7 +10,7 @@ import Polygon
 
 struct ContentView: View {
     @State private var selectedRenderingOption = 1
-    @State private var selectedTileablePolygon = TileablePolygonType.square
+    @State private var selectedTileablePolygon = TileablePolygonType.hexagon
     @State private var selectedPolygonSize = PolygonSize.horizontalTarget
     @State private var specifiedFixedWidth = String(Int(PolygonSize.fixedWidth.defaultWidth))
     @State private var specifiedHorizontalTarget = String(Int(PolygonSize.horizontalTarget.defaultWidth))
@@ -21,10 +21,11 @@ struct ContentView: View {
     @State private var specifiedStaggerEffect = 0.0
     @State private var specifiedInterTilingSpace = 2.0
     
-    let lightGray = Color(white: 0.85)
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(alignment: .center, spacing: 24) {
+        VStack(alignment: .center, spacing: 16) {
+            Spacer(minLength: 1)
             HStack {
                 Spacer()
                     .frame(minWidth: 1, maxWidth: 4096)
@@ -42,48 +43,48 @@ struct ContentView: View {
             } else {
                 tiledPolygons()
             }
-        }.padding()
-            .refreshable(action: {
-                
-            })
+        }.padding(0)
     }
     
     private func tiledPolygons() -> some View {
         let stack = ZStack(alignment: .bottomTrailing, content: {
             polygonBuilder()
-            
-            HStack {
-                Spacer()
-                    .frame(minWidth: 1)
-                HStack {
-                    VStack(alignment: .center, spacing: 12, content: {
-                        shapeSelector
-                        
-                        polygonSizeSelector
-                        
-                        paddingSelector
-                        
-                        singleOrMultiColorSelector
-                        
-                        colorPickerSelector
-                        
-                        //hexagon shape doesn't support stagger
-                        if selectedTileablePolygon != .hexagon {
-                            staggeringEffectSelector
-                        }
-                    })
-                    .padding(8)
-                    .background(Color.background)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(8)
-            }
+            tilingControlPanel()
         })
         return stack
     }
     
+    private func tilingControlPanel() -> some View {
+        HStack {
+            Spacer()
+                .frame(minWidth: 1)
+            HStack {
+                VStack(alignment: .center, spacing: 12, content: {
+                    shapeSelector
+                    
+                    polygonSizeSelector
+                    
+                    paddingSelector
+                    
+                    singleOrMultiColorSelector
+                    
+                    colorPickerSelector
+                    
+                    //hexagon shape doesn't support stagger
+                    if selectedTileablePolygon != .hexagon {
+                        staggeringEffectSelector
+                    }
+                })
+                .padding(8)
+                .background(Color.background)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(8)
+        }
+    }
+    
     private func polygonBuilder() -> some View {
-        let backgroundColor = Color(white: 0.85) //light gray
+        let backgroundColor = (colorScheme == .dark) ? Color(white: 0.15) : Color(white: 0.85)
         
         let polygonKind: any TileablePolygonKind
         
@@ -120,6 +121,7 @@ struct ContentView: View {
         }
         return resultingTiledPolygon
             .background(backgroundColor)
+            .padding(0)
     }
     
     private var paddingSelector: some View {
@@ -137,7 +139,7 @@ struct ContentView: View {
             }, maximumValueLabel: {
                 Text("8")
             }, onEditingChanged: { _ in
-                renderTiledPolygons()
+                reactToChange()
             }).frame(minWidth: 200)
         }
     }
@@ -157,7 +159,7 @@ struct ContentView: View {
             }, maximumValueLabel: {
                 Text("100%")
             }, onEditingChanged: { _ in
-                renderTiledPolygons()
+                reactToChange()
             }).frame(minWidth: 200)
         }
     }
@@ -181,7 +183,7 @@ struct ContentView: View {
                 })
                 .pickerStyle(.automatic)
                 .onSubmit {
-                    renderTiledPolygons()
+                    reactToChange()
                 }
             }
         }
@@ -198,7 +200,7 @@ struct ContentView: View {
                 })
             }).pickerStyle(.menu)
                 .onSubmit {
-                    renderTiledPolygons()
+                    reactToChange()
                 }
         }
     }
@@ -214,7 +216,7 @@ struct ContentView: View {
             })
             .pickerStyle(.segmented)
                 .onSubmit {
-                    renderTiledPolygons()
+                    reactToChange()
                 }
         }
     }
@@ -240,7 +242,7 @@ struct ContentView: View {
                 .border(.tertiary)
                 //.keyboardType(.numberPad)
                 .onSubmit {
-                    self.renderTiledPolygons()
+                    self.reactToChange()
                 }.frame(width: 48)
             default:
                 TextField(text: $specifiedHorizontalTarget, label: {
@@ -249,53 +251,56 @@ struct ContentView: View {
                 .border(.tertiary)
                 //.keyboardType(.numberPad)
                 .onSubmit {
-                    self.renderTiledPolygons()
+                    self.reactToChange()
                 }.frame(width: 48)
             }
         }).frame(alignment: .trailing)
     }
     
-    private func renderTiledPolygons() {
-        
+    private func reactToChange() {
+        //nothing to do here
     }
     
     private func individualPolygons() -> some View {
-        VStack(alignment: .center, spacing: 8) {
+        let tileBackground = (colorScheme == .dark) ? Color(white: 0.15) : Color(white: 0.85)
+        let resultingStack = VStack(alignment: .center, spacing: 8) {
             Spacer()
             HStack {
                 Polygon(numberOfSides: 3, rotationAngle: Angle(degrees: 30))
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 4, rotationAngle: Angle(degrees: 45))
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 5, rotationAngle: Angle(degrees: -18))
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 6)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 7, rotationAngle: Angle(degrees: -90))
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 8)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 9)
-                    .background(lightGray)
+                    .background(tileBackground)
             }.frame(maxHeight: 240)
             HStack {
                 Polygon(numberOfSides: 10)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 11)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 12)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 13)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 14)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 15)
-                    .background(lightGray)
+                    .background(tileBackground)
                 Polygon(numberOfSides: 16)
-                    .background(lightGray)
+                    .background(tileBackground)
             }.frame(maxHeight: 240)
             Spacer()
         }
+        
+        return resultingStack
     }
 }
 

@@ -154,7 +154,9 @@ public struct Polygon: Shape {
 #Preview {
     let lightGray = Color(white: 0.85)
     let hStack = HStack(spacing: 20, content: {
-      Polygon(numberOfSides: 3, fillColor: .blue, rotationAngle: Angle(degrees: 30))
+      Polygon(numberOfSides: 3, 
+              fillColor: .blue,
+              rotationAngle: Angle(degrees: 30))
         .background(lightGray)
       Polygon(numberOfSides: 4, fillColor: .blue, rotationAngle: Angle(degrees: 45))
         .background(lightGray)
