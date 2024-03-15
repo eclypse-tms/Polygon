@@ -25,7 +25,13 @@ Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely
 
 <br/>
 
-## Works in iOS, macOS and macCatalyst
+## Works in iOS, macOS and macCatalyst out of the box
+* Polygon library supports iOS 15 and above with UIKit and SwiftUI. 
+	- Either import UIKit or SwiftUI - depending on your app
+* Polygon also support macOS 12 and above via SwiftUI.
+	- Import SwiftUI into your AppKit based app with NSHostingView or NSHostingController
+
+<br/>
 
 ## Polygon Usage - SwiftUI
 
