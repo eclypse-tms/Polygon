@@ -58,7 +58,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
     
     
     @usableFromInline 
-    internal var _interTileSpacing: CGFloat = 1.0
+    internal var _interTileSpacing: CGFloat = 2.0
     /// Spacing in between the tiles. default value is 1 point.
     @inlinable public func interTileSpacing(_ spacing: CGFloat) -> TiledPolygon {
         var newCopy = self

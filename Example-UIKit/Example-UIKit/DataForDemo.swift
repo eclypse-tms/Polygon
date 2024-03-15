@@ -8,8 +8,8 @@
 import UIKit
 
 enum TileablePolygonType: String, CaseIterable, Identifiable {
-    case equilateralTriangle
     case square
+    case equilateralTriangle
     case hexagon
     case octagon
     var id: Self { self }

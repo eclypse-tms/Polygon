@@ -19,10 +19,13 @@ class ViewController: UIViewController {
     @IBOutlet private var fixedWidthSizeText: UITextField!
     @IBOutlet private var targetSizeText: UITextField!
     @IBOutlet private var tilePaddingSlider: UISlider!
+    @IBOutlet private var tilePaddingLabel: UILabel!
     @IBOutlet private var singleOrMultiColorSelection: UISegmentedControl!
     @IBOutlet private var colorPicker: UIColorWell!
+    @IBOutlet private var colorPickerLabel: UILabel!
     @IBOutlet private var palettePicker: UIButton!
     @IBOutlet private var staggerEffectSlider: UISlider!
+    @IBOutlet private var staggerEffectLabel: UILabel!
     @IBOutlet private var pickAColorLabel: UILabel!
     @IBOutlet private var staggerControls: UIStackView!
     
@@ -32,6 +35,9 @@ class ViewController: UIViewController {
     private var animatablePolygon: UIPolygon!
     private var constraintsMap = [UIView: ConstraintPair]()
     
+    private let percentFormatter = NumberFormatter()
+    private var rawInterTilingSpace: Double = 2.0
+    private var rawStaggerEffect: Double = 0.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,12 +88,15 @@ class ViewController: UIViewController {
         
         // inter tile space slider
         tilePaddingSlider.value = 2.0 //default value
+        rawInterTilingSpace = 2.0
         
         // single or multi color selector
         singleOrMultiColorSelection.selectedSegmentIndex = 0 //default
         
         // color well
         colorPicker.addTarget(self, action: #selector(didChangeColor(_:)), for: .valueChanged)
+        colorPicker.selectedColor = .systemBlue
+        colorPickerLabel.text = "Pick a color"
         
         // color palette picker
         let colorPaletteMenuOptions = ColorPalette.allCases.map { eachColorPalette -> UIAction in
@@ -101,13 +110,29 @@ class ViewController: UIViewController {
         
         //stagger effect
         staggerEffectSlider.value = 0.0 //default value
+        rawStaggerEffect = 0.0
         
-        
+        //configure number formatter
+        percentFormatter.minimumFractionDigits = 0
+        percentFormatter.maximumFractionDigits = 0
+        percentFormatter.numberStyle = .percent
     }
     
     @IBAction
     private func didChangeStaggerValue(_ sender: UISlider) {
-        tiledPolygon.staggerEffect = StaggerEffect(CGFloat(sender.value))
+        let nearestInteger = CGFloat(sender.value.rounded())
+        //the value are between 0 and 20. Interpret them as 0 to 100% in 5% increments.
+        let percentEquivalent: Double = (nearestInteger * 5.0) / 100.0
+        
+        if rawStaggerEffect == percentEquivalent {
+            //the slider didn't change enough, nothing to do
+        } else {
+            //the slider changed more than 5% - re-render the polygons
+            rawStaggerEffect = percentEquivalent
+            let formattedResult = percentFormatter.string(from: NSNumber(floatLiteral: percentEquivalent))
+            tiledPolygon.staggerEffect = StaggerEffect(percentEquivalent)
+            staggerEffectLabel.text = formattedResult
+        }
     }
     
     @objc
@@ -117,7 +142,14 @@ class ViewController: UIViewController {
     
     @IBAction
     private func didChangeTilePadding(_ sender: UISlider) {
-        tiledPolygon.interTileSpacing = CGFloat(sender.value)
+        let nearestInteger = CGFloat(sender.value.rounded())
+        if rawInterTilingSpace == nearestInteger {
+            //the slider didn't change enough, nothing to do
+        } else {
+            rawInterTilingSpace = nearestInteger
+            tiledPolygon.interTileSpacing = nearestInteger
+            tilePaddingLabel.text = "\(Int(nearestInteger)) pt"
+        }
     }
     
     @IBAction
@@ -143,10 +175,12 @@ class ViewController: UIViewController {
             colorPicker.isHidden = false
             palettePicker.isHidden = true
             tiledPolygon.fillColor = colorPicker.selectedColor ?? UIColor.tintColor
+            colorPickerLabel.text = "Pick a color"
         default: // multi color selection
             colorPicker.isHidden = true
             palettePicker.isHidden = false
             tiledPolygon.fillColorPattern = UIColor.viridisPalette
+            colorPickerLabel.text = "Pick a palette"
         }
     }
     

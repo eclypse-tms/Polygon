@@ -34,9 +34,6 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPat
     /// a color pattern to tiled polygons
     @IBInspectable open var fillColorPattern: [UIColor] = [UIColor.systemBlue] {
         didSet {
-            if fillColorPattern.isEmpty {
-                fillColorPattern.append(.systemBlue)
-            }
             setNeedsDisplay()
         }
     }
@@ -48,8 +45,8 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPat
         }
     }
     
-    /// Spacing in between the tiles. default value is 1 point.
-    open var interTileSpacing: CGFloat = 1.0 {
+    /// Spacing in between the tiles. default value is 2 points.
+    open var interTileSpacing: CGFloat = 2.0 {
         didSet {
             setNeedsDisplay()
         }
@@ -206,13 +203,22 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPat
                     if boundingRect.minY < 0 {
                         colorAssignment -= 1
                     }
-                    var colorMod = (colorAssignment % fillColorPattern.count)
-                    if colorMod < 0 {
-                        colorMod = (fillColorPattern.count + colorMod) % fillColorPattern.count
+                    
+                    let currentFillColor: UIColor
+                    //protect against empty color pattern
+                    if fillColorPattern.count == 0 {
+                        currentFillColor = UIColor.tintColor
+                    } else {
+                        var colorMod = (colorAssignment % fillColorPattern.count)
+                        if colorMod < 0 {
+                            colorMod = (fillColorPattern.count + colorMod) % fillColorPattern.count
+                        }
+                        
+                        currentFillColor = fillColorPattern[colorMod]
                     }
                     
-                    // apply colors and border
-                    fillColorPattern[colorMod].setFill()
+                    // apply the fill color
+                    currentFillColor.setFill()
                     scaledPolygonPath.fill()
                 }
             }
