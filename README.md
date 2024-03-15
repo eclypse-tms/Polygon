@@ -29,7 +29,8 @@ Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely
 * Polygon library supports iOS 15 and above with UIKit and SwiftUI. 
 	- Either import UIKit or SwiftUI - depending on your app
 * Polygon also support macOS 12 and above via SwiftUI.
-	- Import SwiftUI into your AppKit based app with NSHostingView or NSHostingController
+	- Import SwiftUI into your AppKit based app with the help of NSHostingView or NSHostingController
+* Check out Example apps included in this library
 
 <br/>
 
@@ -109,11 +110,10 @@ Since we added support for SwiftUI, previously named `Polygon` class has been re
 ## Breaking Change with version 3
 Now all UIPolygons are animatable.
 
-<br/>
 
-## Animatable Polygons in UIKit
+## Animate Polygons in UIKit
 
-UIPolygon is also animatable since it draws its shape on a sublayer. This opens up the possibility of applying any CAAnimation on a polygon. Example: 
+UIPolygon is animatable since it draws its shape on a layer. This opens up the possibility of applying any CAAnimation on a polygon. Example: 
 
 ```
 let pentagon = UIPolygon()
