@@ -10,22 +10,52 @@
 </p>
 
 # Polygon 
-Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely simply API. An example of polygons from triangle to 16-sided-polygon.
+Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely simply API. An example of individual polygons from triangle to 16-sided-polygon.
 
 <p align="center">
   <img src="./assets/hero_image.jpg" width="454.5" height="326.5">
 </p>
 
+<br/>
+
+## ... or you can tile them in any frame
+<p align="center">
+  <img src="./assets/tiled_polygon_preview.jpg" width="499" height="358.5">
+</p>
+
+<br/>
+
+## Works in iOS, macOS and macCatalyst out of the box
+* Polygon library supports iOS 15 and above with UIKit and SwiftUI. 
+	- Either import UIKit or SwiftUI - depending on your app
+* Polygon also support macOS 12 and above via SwiftUI.
+	- Import SwiftUI into your AppKit based app with the help of NSHostingView or NSHostingController
+* Check out Example apps included in this library
+
+<br/>
+
 ## Polygon Usage - SwiftUI
 
 ```
 var body: some View {
+  // Single Polygon
   Polygon(numberOfSides: 5, // draws a pentagon
           fillColor: .green, // the color to fill the polygon width
           rotationAngle: Angle(degrees: 30), // rotate the shape in any angle
           borderWidth: 2,
           borderColor: .black)
 }
+
+var body: some View {
+  // Tile Hexagons in the view
+  TiledPolygon()
+     .kind(Hexagon())
+     .interTileSpacing(2) // space between adjacent tiles
+     .fillColorPattern(Color.viridisPalette) //apply multi color
+     .polygonSize(TileablePolygonSize(fixedWidth: 64) //size of each tile
+     .background(Color.gray) // inter-tiling color
+}
+
 ```
 
 ## Polygon Usage - UIKit
@@ -36,11 +66,25 @@ pentagon.numberOfSides = 5 // draws a pentagon
 pentagon.rotationAngle = 30 // rotate the shape in any angle between -179° thru 180°
 pentagon.borderWidth = 2
 // Add the polygon to a view
+
+let tiledPolygon = UITiledPolygon()
+tiledPolygon.tileablePolygonKind = Hexagon() //tile hexagons
+tiledPolygon.interTileSpacing = 2.0 // space between adjacent tiles      
+tiledPolygon.polygonSize = TileablePolygonSize(fixedWidth: 64) //size of each tile
+tiledPolygon.backgroundColor = .systemGray5 // inter-tiling color
+
 ```
 
-## Result
+## Individual Polygon Result
 <p align="center">
     <img src="./assets/demo.jpg" width="531" height="176.5"  alt="polygon preview">
+</p>
+
+<br/>
+
+## Tiled Polygons Result
+<p align="center">
+    <img src="./assets/tileable_polygons_demo.gif" width="600" height="426"  alt="tiled polygons preview">
 </p>
 
 <br/>
@@ -63,22 +107,22 @@ Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/So
 ## Breaking Change with version 2
 Since we added support for SwiftUI, previously named `Polygon` class has been renamed to `UIPolygon` to follow the UIKit's convention. The class name `Polygon` is now used for SwiftUI variation.
 
-<br/>
+## Breaking Change with version 3
+Now all UIPolygons are animatable.
 
-## Animatable Polygon Variation for UIKit
 
-The library includes another variation called `AnimatableUIPolygon`. You can freely use one or the other according to your needs. AnimatablePolygon works exactly the same way as the vanilla Polygon except that it draws its shape on a sublayer. This opens up the possibility of applying any CAAnimation on that sublayer. 
+## Animate Polygons in UIKit
+
+UIPolygon is animatable since it draws its shape on a layer. This opens up the possibility of applying any CAAnimation on a polygon. Example: 
 
 ```
-let pentagon = AnimatableUIPolygon()
+let pentagon = UIPolygon()
 pentagon.backgroundColor = .systemGray5 //optional background color
 pentagon.fillColor = UIColor.green // the color to fill the polygon width
 pentagon.numberOfSides = 5 // draws a pentagon
-pentagon.rotationAngle = 30 // rotate the shape in any angle between -179° thru 180°
-pentagon.borderWidth = 2
-// Add the polygon to a view
+... other code
 
-//create an animation
+//create a fade-out animation
 let opacityAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.opacity))
 opacityAnimation.fromValue = Float(1.0)
 opacityAnimation.toValue = Float(0.0)
@@ -94,4 +138,5 @@ pentagon.apply(animation: opacityAnimation)
 
 ## Polygons in SwiftUI are animatable 
 In SwiftUI, the Polygon class conforms to the `Shape` protocol - which makes them animatable.
+
 

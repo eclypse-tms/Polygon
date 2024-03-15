@@ -1,5 +1,5 @@
 //
-//  AnimatableUIPolygon.swift
+//  UIPolygon.swift
 //
 //
 //  Created by eclypse on 2/22/24.
@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable
-open class AnimatableUIPolygon: UIView, PolygonProtocol {
+open class UIPolygon: UIView, UIPolygonProtocol, UIPolygonBezierPath {
     open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {
@@ -60,7 +60,7 @@ open class AnimatableUIPolygon: UIView, PolygonProtocol {
     /// convience function to apply a basic animation to the polygon sublayer.
     ///
     /// Instead of calling this function, you can get a hold of the CALayer directly
-    /// by invoking [AnimatableUIPolygon.polygonLayer].
+    /// by invoking [UIPolygon.polygonLayer].
     /// - Parameters:
     ///   - animation: animation to use for the polygon layer
     ///   - completion: optional callback when the animation is finished
@@ -87,13 +87,19 @@ open class AnimatableUIPolygon: UIView, PolygonProtocol {
         drawDashes(rect: bounds, center: centerPoint, radius: radius)
 
         // Apply the rotation transformation to the path
-        let polygonPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
+        let polygonPath = drawInitialPolygonPath(numberOfSides: numberOfSides,
+                                                 centerPoint: centerPoint,
+                                                 radius: radius,
+                                                 rotationInRadians: rotationAngle.toRadians())
 
         // scale the polygon to fit the bounds
-        scale(polygonPath: polygonPath, rect: bounds, originalCenter: centerPoint, reCenter: true)
+        let scaledPolygon = scale(polygonPath: polygonPath, 
+                                  rect: bounds,
+                                  originalCenter: centerPoint,
+                                  reCenter: true, borderWidth: borderWidth)
         
         let shapePath = CAShapeLayer()
-        shapePath.path = polygonPath.cgPath
+        shapePath.path = scaledPolygon.cgPath
         shapePath.frame = self.bounds
         shapePath.masksToBounds = true
         shapePath.fillColor = fillColor.cgColor
@@ -105,16 +111,10 @@ open class AnimatableUIPolygon: UIView, PolygonProtocol {
     }
 }
 
-extension AnimatableUIPolygon: CAAnimationDelegate {
+extension UIPolygon: CAAnimationDelegate {
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         animationCompletionListener?(flag)
         animationCompletionListener = nil
     }
 }
-#elseif canImport(AppKit)
-import AppKit
-open class AnimatableUIPolygon {
-    // this class doesn't do anything in AppKit
-}
-
 #endif
