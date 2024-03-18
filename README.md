@@ -73,6 +73,8 @@ tiledPolygon.polygonSize = TileablePolygonSize(fixedWidth: 64) //size of each ti
 tiledPolygon.backgroundColor = .systemGray5 // inter-tiling color
 ```
 
+<br/>
+
 ## Installation (iOS, macOS, macCatalyst)
 
 ### Swift Package Manager 
@@ -84,6 +86,7 @@ Add Polygon to your project via Swift Package Manager.
 ### Manually
 Drop the [source files](https://github.com/eclypse-tms/Polygon/tree/version_1/Sources/Polygon) into your project.
 
+<br/>
 
 ## Works in iOS, macOS and macCatalyst out of the box
 * Polygon library supports iOS 15 and above with UIKit and SwiftUI. 
@@ -101,6 +104,7 @@ Since we added support for SwiftUI, previously named `Polygon` class has been re
 ## Breaking Change with version 3
 Now all UIPolygons are animatable.
 
+<br/>
 
 ## How to Animate Polygons in UIKit
 
