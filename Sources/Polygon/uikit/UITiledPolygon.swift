@@ -10,7 +10,7 @@ import UIKit
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
 @IBDesignable
-public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPath {
+public class UITiledPolygon: UIView, TileablePolygonProtocol, DrawPath {
     
     /// kind of polygon that can be tiled on a euclydian plane
     open var tileablePolygonKind: any TileablePolygonKind = Square() {
@@ -191,11 +191,18 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPat
                                                               radius: radius,
                                                               rotationInRadians: totalRotation)
                     
+                    let scaledPolygonPath = scale(originalPath: initialPath,
+                          rect: boundingRect,
+                          originalCenter: centerPoint,
+                          reCenter: true)
+                    
+                    /*
                     let scaledPolygonPath = scale(polygonPath: initialPath,
                                                   rect: boundingRect,
                                                   originalCenter: centerPoint,
                                                   reCenter: true,
                                                   borderWidth: nil)
+                    */
                     
                     // because we start tiling -1 column first, we need to adjust the loop counter
                     // so that first visible polygon on the upper left corner is the first color in
@@ -219,7 +226,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, UIPolygonBezierPat
                     
                     // apply the fill color
                     currentFillColor.setFill()
-                    scaledPolygonPath.fill()
+                    scaledPolygonPath.bezierPath.fill()
                 }
             }
         }

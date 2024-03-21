@@ -2,7 +2,7 @@
 //  DemoData.swift
 //  Example-UIKit
 //
-//  Created by Nessa Kucuk, Turker on 3/14/24.
+//  Created by eclypse on 3/14/24.
 //
 
 import UIKit

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 public protocol TileablePolygonProtocol {
     /// given row and column tiling assignment, calculates the layout metrics (i.e. where it should be laid within the canvas)
@@ -61,6 +62,11 @@ public extension TileablePolygonProtocol {
             numberOfTileableColumns = Int((canvasSize.width  / fixedPolygonWidth).rounded(.up))
             numberOfTileableRows = Int((canvasSize.height / fixedPolygonWidth).rounded(.up))
             effectiveTileSize = CGSize(width: fixedPolygonWidth, height: fixedPolygonWidth)
+        case let aRectangle as Rectangle:
+            let rectangleHeight = fixedPolygonWidth / aRectangle.widthToHeightRatio
+            numberOfTileableColumns = Int((canvasSize.width  / fixedPolygonWidth).rounded(.up))
+            numberOfTileableRows = Int((canvasSize.height / rectangleHeight).rounded(.up))
+            effectiveTileSize = CGSize(width: fixedPolygonWidth, height: rectangleHeight)
         case is Hexagon:
             
             // when we have a fixed tile size each hexagon will take 75% of the provided width
@@ -140,6 +146,9 @@ public extension TileablePolygonProtocol {
         case is Square, is Octagon:
             widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / targetNumberOfHorizontallyLaidPolygons
             heightOfEachTile = widthOfEachTile
+        case let aRect as Rectangle:
+            widthOfEachTile = canvasWidthAfterInterTilingGapIsApplied / targetNumberOfHorizontallyLaidPolygons
+            heightOfEachTile = widthOfEachTile / aRect.widthToHeightRatio
         case is Hexagon:
             // because tiled hexagons are STAGGERED, each hexagon takes 75 % of the space
             // that a square would have taken. 75 % figure can be calculted by trigonometry.
@@ -218,6 +227,15 @@ public extension TileablePolygonProtocol {
             tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
             tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
             
+        case let aRectangle as Rectangle:
+            initialShapeRotation = aRectangle.initialRotation
+            let offsetFromStaggeringY = (CGFloat(tileX) * appliedstaggerEffectValue)
+            
+            let totalModulus = tileSize.height + interTileSpacing
+            let modulatedStaggerOffset = offsetFromStaggeringY.remainder(dividingBy: totalModulus) - (totalModulus)
+            
+            tileXOffset = CGFloat(tileX) * (tileSize.width + interTileSpacing) + paddingAroundTheEdges
+            tileYOffset = CGFloat(tileY) * (tileSize.height + interTileSpacing) + paddingAroundTheEdges + modulatedStaggerOffset
         case let aHexagon as Hexagon:
             initialShapeRotation = aHexagon.initialRotation
             appliedstaggerEffectValue = 0.0 //additional staggering is not supported for hexagon
@@ -255,15 +273,15 @@ public extension TileablePolygonProtocol {
                                          appliedStaggerEffect: appliedstaggerEffectValue)
     }
 }
-/*
+
 #Preview {
     let backgroundColor = Color(white: 0.85) //light gray
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Square())
-        .staggerEffect(StaggerEffect(0.5))
-        .interTileSpacing(20)
+        .kind(Rectangle(widthToHeightRatio: 0.5))
+        .staggerEffect(StaggerEffect(0))
+        .interTileSpacing(4)
         .fillColorPattern(Color.infernoPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 100))
         .background(backgroundColor)
@@ -271,4 +289,3 @@ public extension TileablePolygonProtocol {
     
     return tiledPolygon
 }
-*/

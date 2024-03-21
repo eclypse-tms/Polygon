@@ -1,5 +1,5 @@
 //
-//  UIPolygonBezierPath.swift
+//  DrawUIPath.swift
 //
 //
 //  Created by eclypse on 3/2/24.
@@ -8,9 +8,8 @@
 #if canImport(UIKit)
 import UIKit
 
-
 /// performs operations that produce a bezier path like drawing a polygon path or scaling an existing one
-public protocol UIPolygonBezierPath {
+public protocol DrawUIPath {
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
     /// - Parameters:
     ///   - numberOfSides: number of sides of any equilateral polygon.
@@ -31,7 +30,7 @@ public protocol UIPolygonBezierPath {
     func rotate(polygonPath: UIBezierPath, originalCenter: CGPoint, reCenter: Bool, rotationAngle: CGFloat) -> UIBezierPath
 }
 
-extension UIPolygonBezierPath {
+extension DrawUIPath {
 
     /// scales the bezier path to fit the bounding rectangle, if necessary
     @discardableResult

@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
-public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
+public struct TiledPolygon: View, TileablePolygonProtocol, DrawPath {
     
     @usableFromInline 
     internal var _kind: any TileablePolygonKind = Square()
@@ -207,7 +207,7 @@ public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
                         if colorMod < 0 {
                             colorMod = (_fillColorPattern.count + colorMod) % _fillColorPattern.count
                         }
-                        context.fill(scaledPolygonPath, with: .color(_fillColorPattern[colorMod]))
+                        context.fill(scaledPolygonPath.path, with: .color(_fillColorPattern[colorMod]))
                     }
                 }
             }

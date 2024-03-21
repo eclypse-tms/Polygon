@@ -1,14 +1,14 @@
 //
-//  PolygonBezierPath.swift
+//  DrawPath.swift
 //
 //
 //  Created by eclypse on 3/13/24.
 //
 
-import SwiftUI
+import Foundation
 
 /// performs operations that produce a bezier path like drawing a polygon path or scaling an existing one
-public protocol PolygonBezierPath {
+public protocol DrawPath {
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
     /// - Parameters:
     ///   - numberOfSides: number of sides of any equilateral polygon.
@@ -19,24 +19,24 @@ public protocol PolygonBezierPath {
     func drawInitialPolygonPath(numberOfSides: Int,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
-                                rotationInRadians: CGFloat?) -> Path
+                                rotationInRadians: CGFloat?) -> CommonBezierPath
     
     /// scales the original path so that at least 2 corners of the polygon touches the edge of the frame
-    func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path
+    func scale(originalPath: CommonBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> CommonBezierPath
 }
 
-public extension PolygonBezierPath {
+public extension DrawPath {
     func drawInitialPolygonPath(numberOfSides: Int,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
-                                rotationInRadians: CGFloat?) -> Path {
+                                rotationInRadians: CGFloat?) -> CommonBezierPath {
         // this is the slice we have to traverse for each side of the polygon
         let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
         
         
         // iterate over the sides of the polygon and collect each point on the circle
         // where the polygon corner should be
-        var polygonPath = Path()
+        var polygonPath = CommonBezierPath()
         for i in 0..<numberOfSides {
             let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
             let rotatedAngleFromCenter = currentAngleFromCenter + (rotationInRadians ?? 0.0)
@@ -52,7 +52,7 @@ public extension PolygonBezierPath {
         return polygonPath
     }
     
-    func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
+    func scale(originalPath: CommonBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> CommonBezierPath {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = originalPath.boundingRect
         let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width)
@@ -66,15 +66,15 @@ public extension PolygonBezierPath {
         } else {
             // scale the shape based on the calculated scale factor
             let scaledAffineTransform = CGAffineTransform(scaleX: finalScaleFactor, y: finalScaleFactor)
-            let scaledNonCenteredPath = originalPath.transform(scaledAffineTransform).path(in: rect)
+            let scaledNonCenteredPath = originalPath.transform(scaledAffineTransform, in: rect)
             
             if reCenter {
                 // scaling operation happens with respect to the origin/anchor point
                 // as a result, scaling the polygon will shift its center
                 // we need to bring the shape back to the original rectangle's center
                 let centerAfterScaling = CGPoint(x: scaledNonCenteredPath.boundingRect.midX, y: scaledNonCenteredPath.boundingRect.midY)
-                let recenteredAffineTransfor = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
-                return scaledNonCenteredPath.transform(recenteredAffineTransfor).path(in: rect)
+                let recenteredAffineTransform = CGAffineTransform(translationX: originalCenter.x - centerAfterScaling.x, y: originalCenter.y - centerAfterScaling.y)
+                return scaledNonCenteredPath.transform(recenteredAffineTransform, in: rect)
             } else {
                 // we don't need to recenter, we are done!
                 return scaledNonCenteredPath
