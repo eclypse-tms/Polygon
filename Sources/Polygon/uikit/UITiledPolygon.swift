@@ -194,7 +194,8 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, DrawPath {
                     let scaledPolygonPath = scale(originalPath: initialPath,
                           rect: boundingRect,
                           originalCenter: centerPoint,
-                          reCenter: true)
+                          reCenter: true, 
+                          borderWidth: nil)
                     
                     /*
                     let scaledPolygonPath = scale(polygonPath: initialPath,
@@ -226,7 +227,7 @@ public class UITiledPolygon: UIView, TileablePolygonProtocol, DrawPath {
                     
                     // apply the fill color
                     currentFillColor.setFill()
-                    scaledPolygonPath.bezierPath.fill()
+                    scaledPolygonPath.asUIBezierPath().fill()
                 }
             }
         }

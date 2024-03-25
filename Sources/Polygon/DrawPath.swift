@@ -19,24 +19,28 @@ public protocol DrawPath {
     func drawInitialPolygonPath(numberOfSides: Int,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
-                                rotationInRadians: CGFloat?) -> CommonBezierPath
+                                rotationInRadians: CGFloat?) -> BezierPath
     
     /// scales the original path so that at least 2 corners of the polygon touches the edge of the frame
-    func scale(originalPath: CommonBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> CommonBezierPath
+    func scale(originalPath: BezierPath, 
+               rect: CGRect,
+               originalCenter: CGPoint,
+               reCenter: Bool,
+               borderWidth: CGFloat?) -> BezierPath
 }
 
 public extension DrawPath {
     func drawInitialPolygonPath(numberOfSides: Int,
                                 centerPoint: CGPoint,
                                 radius: CGFloat,
-                                rotationInRadians: CGFloat?) -> CommonBezierPath {
+                                rotationInRadians: CGFloat?) -> BezierPath {
         // this is the slice we have to traverse for each side of the polygon
         let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
         
         
         // iterate over the sides of the polygon and collect each point on the circle
         // where the polygon corner should be
-        var polygonPath = CommonBezierPath()
+        var polygonPath = BezierPath()
         for i in 0..<numberOfSides {
             let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
             let rotatedAngleFromCenter = currentAngleFromCenter + (rotationInRadians ?? 0.0)
@@ -52,11 +56,15 @@ public extension DrawPath {
         return polygonPath
     }
     
-    func scale(originalPath: CommonBezierPath, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> CommonBezierPath {
+    func scale(originalPath: BezierPath, 
+               rect: CGRect,
+               originalCenter: CGPoint,
+               reCenter: Bool,
+               borderWidth: CGFloat?) -> BezierPath {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = originalPath.boundingRect
-        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width)
-        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height)
+        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * (borderWidth ?? 0.0))
+        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height + 2 * (borderWidth ?? 0.0))
         let finalScaleFactor = min(scaleFactorX, scaleFactorY)
         
         if abs(finalScaleFactor - 1.0) < 0.000001 {

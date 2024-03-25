@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable
-open class UIPolygon: UIView, UIPolygonProtocol, DrawUIPath {
+open class UIPolygon: UIView, UIPolygonProtocol, DrawPath {
     open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {
@@ -93,10 +93,11 @@ open class UIPolygon: UIView, UIPolygonProtocol, DrawUIPath {
                                                  rotationInRadians: rotationAngle.toRadians())
 
         // scale the polygon to fit the bounds
-        let scaledPolygon = scale(polygonPath: polygonPath, 
+        let scaledPolygon = scale(originalPath: polygonPath, 
                                   rect: bounds,
                                   originalCenter: centerPoint,
-                                  reCenter: true, borderWidth: borderWidth)
+                                  reCenter: true, 
+                                  borderWidth: borderWidth)
         
         let shapePath = CAShapeLayer()
         shapePath.path = scaledPolygon.cgPath

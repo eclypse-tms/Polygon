@@ -195,7 +195,11 @@ public struct TiledPolygon: View, TileablePolygonProtocol, DrawPath {
                                                                  radius: radius,
                                                                  rotationInRadians: totalRotation)
                         
-                        let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
+                        let scaledPolygonPath = scale(originalPath: initialPath, 
+                                                      rect: boundingRect,
+                                                      originalCenter: centerPoint,
+                                                      reCenter: true,
+                                                      borderWidth: nil)
                         
                         // because we start tiling -1 column first, we need to adjust the loop counter
                         // so that first visible polygon on the upper left corner is the first color in
