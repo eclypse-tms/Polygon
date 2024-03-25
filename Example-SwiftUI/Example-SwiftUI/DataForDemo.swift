@@ -13,6 +13,7 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
     case square
     case hexagon
     case octagon
+    case rectangle
     var id: Self { self }
     
     var imageName: String {
@@ -25,6 +26,8 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
             return "hexagon"
         case .octagon:
             return "octagon"
+        case .rectangle:
+            return "rectangle"
         }
     }
     
@@ -38,6 +41,8 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
             return "Hexagon"
         case .octagon:
             return "Octagon"
+        case .rectangle:
+            return "Rectangle"
         }
     }
 }

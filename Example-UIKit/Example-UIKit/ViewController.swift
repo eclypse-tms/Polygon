@@ -200,6 +200,10 @@ class ViewController: UIViewController {
             tiledPolygon.tileablePolygonKind = Hexagon()
             //hexagon cannot be staggered at the moment
             staggerControls.isHidden = true
+        case TileablePolygonType.rectangle.id.rawValue:
+            tiledPolygon.tileablePolygonKind = Rectangle(widthToHeightRatio: 0.5)
+            //hexagon cannot be staggered at the moment
+            staggerControls.isHidden = false
         default:
             break
         }

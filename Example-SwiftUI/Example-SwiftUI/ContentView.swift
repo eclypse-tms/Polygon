@@ -97,6 +97,8 @@ struct ContentView: View {
             polygonKind = Hexagon()
         case .octagon:
             polygonKind = Octagon()
+        case .rectangle:
+            polygonKind = Rectangle(widthToHeightRatio: 0.5)
         }
         
         var resultingTiledPolygon = TiledPolygon()
