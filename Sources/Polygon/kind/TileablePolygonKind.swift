@@ -11,4 +11,5 @@ public protocol TileablePolygonKind: Hashable, Identifiable {
     var id: String { get }
     var numberOfSides: Int { get }
     var initialRotation: CommonAngle { get }
+    var hasEquilateralSides: Bool { get }
 }

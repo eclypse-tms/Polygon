@@ -279,7 +279,7 @@ public extension TileablePolygonProtocol {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(Rectangle(widthToHeightRatio: 0.5))
+        .kind(Rectangle(widthToHeightRatio: 2.0))
         .staggerEffect(StaggerEffect(0))
         .interTileSpacing(4)
         .fillColorPattern(Color.infernoPalette)

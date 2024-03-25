@@ -8,6 +8,10 @@
 import Foundation
 
 public struct Square: TileablePolygonKind {
+    public var hasEquilateralSides: Bool {
+        return true
+    }
+    
     public var id: String {
         return "Square-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
     }

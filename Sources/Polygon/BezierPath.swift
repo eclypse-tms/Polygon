@@ -33,6 +33,11 @@ public struct BezierPath {
     }
     
     @inlinable
+    public init(for rect: CGRect, cornerRadius: CGFloat) {
+        self.path = Path(roundedRect: rect, cornerRadius: cornerRadius)
+    }
+    
+    @inlinable
     public var boundingRect: CGRect {
         path.boundingRect
     }

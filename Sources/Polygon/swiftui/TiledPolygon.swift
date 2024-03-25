@@ -190,10 +190,11 @@ public struct TiledPolygon: View, TileablePolygonProtocol, DrawPath {
                             break
                         }
                         
-                        let initialPath = drawInitialPolygonPath(numberOfSides: _kind.numberOfSides,
-                                                                 centerPoint: centerPoint,
-                                                                 radius: radius,
-                                                                 rotationInRadians: totalRotation)
+                        let initialPath = drawPolygonPath(kind: _kind,
+                                                          boundingRect: boundingRect,
+                                                          centerPoint: centerPoint,
+                                                          radius: radius,
+                                                          rotationInRadians: totalRotation)
                         
                         let scaledPolygonPath = scale(originalPath: initialPath, 
                                                       rect: boundingRect,
@@ -224,9 +225,9 @@ public struct TiledPolygon: View, TileablePolygonProtocol, DrawPath {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(EquilateralTriangle())
+        .kind(Rectangle(widthToHeightRatio: 2.0))
         .interTileSpacing(4)
-        .staggerEffect(StaggerEffect(0.0))
+        .staggerEffect(StaggerEffect(0.5))
         .fillColorPattern(Color.viridisPalette)
         .polygonSize(TileablePolygonSize(fixedWidth: 92))
         .background(backgroundColor)

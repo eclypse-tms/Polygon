@@ -8,6 +8,10 @@
 import Foundation
 
 public struct EquilateralTriangle: TileablePolygonKind {
+    public var hasEquilateralSides: Bool {
+        return true
+    }
+    
     public var id: String {
         return "EquilateralTriangle-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
     }

@@ -8,6 +8,10 @@
 import Foundation
 
 public struct Hexagon: TileablePolygonKind {
+    public var hasEquilateralSides: Bool {
+        return true
+    }
+    
     public var id: String {
         return "Hexagon-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
     }

@@ -8,6 +8,10 @@
 import Foundation
 
 public struct Octagon: TileablePolygonKind {
+    public var hasEquilateralSides: Bool {
+        return true
+    }
+    
     public var id: String {
         return "Octagon-numberOfSides:\(numberOfSides)-rotation:\(initialRotation.degrees)"
     }
