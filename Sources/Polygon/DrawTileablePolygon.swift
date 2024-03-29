@@ -1,5 +1,5 @@
 //
-//  DrawPath.swift
+//  DrawTileablePolygon.swift
 //
 //
 //  Created by eclypse on 3/13/24.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// performs operations that produce a bezier path like drawing a polygon path or scaling an existing one
-public protocol DrawPath {
+public protocol DrawTileablePolygon {
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
     /// - Parameters:
     ///   - numberOfSides: number of sides of any equilateral polygon.
@@ -43,7 +43,8 @@ public protocol DrawPath {
                borderWidth: CGFloat?) -> BezierPath
 }
 
-public extension DrawPath {
+    
+public extension DrawTileablePolygon {   
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
     /// - Parameters:
     ///   - numberOfSides: number of sides of any equilateral polygon.
@@ -76,6 +77,7 @@ public extension DrawPath {
         polygonPath.closeSubpath()
         return polygonPath
     }
+    
     
     /// given a center point and radius, it creates a bezier path for a TileablePolygonKind
     /// - Parameters:
@@ -118,7 +120,7 @@ public extension DrawPath {
         } else {
             var polygonPath: BezierPath
             switch kind {
-            case is Rectangle:
+            case is Quadgon:
                 fallthrough
             default:
                 polygonPath = BezierPath(for: boundingRect, cornerRadius: 0.0)

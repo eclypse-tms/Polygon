@@ -16,3 +16,9 @@ extension Int {
         return !isEven()
     }
 }
+
+extension CGFloat {
+    @inlinable var roundX: CGFloat {
+        ((self * 100.0).rounded()) / 100.0
+    }
+}

@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable
-open class UIPolygon: UIView, UIPolygonProtocol, DrawPath {
+open class UIPolygon: UIView, UIPolygonProtocol, DrawTileablePolygon {
     open var animationCompletionListener: ((Bool) -> Void)?
     
     @IBInspectable open var showDashes: Bool = false {

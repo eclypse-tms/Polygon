@@ -107,6 +107,9 @@
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
+                                                        <connections>
+                                                            <action selector="didEnterNewSizeValue:" destination="BYZ-38-t0r" eventType="editingChanged" id="qvk-rJ-r5g"/>
+                                                        </connections>
                                                     </textField>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eok-XY-iTS">
                                                         <rect key="frame" x="256" y="0.0" width="48" height="22"/>
@@ -115,6 +118,9 @@
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
+                                                        <connections>
+                                                            <action selector="didEnterNewSizeValue:" destination="BYZ-38-t0r" eventType="editingChanged" id="aS5-wY-FQp"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                             </stackView>

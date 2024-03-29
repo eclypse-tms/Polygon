@@ -22,12 +22,12 @@ public struct StaggerEffect: Hashable {
     /// Any values outside of the acceptable range are ignored.
     public let amount: CGFloat
     
-    
-    /// Currently StaggerEffect is only applied for the Y dimension and is not configurable.
-    /// However, this field has been reserved for future use.
+    /// Can apply the stagger effect only on the y axis at the moment.
+    /// Support for x-axis will be offered in the near future.
     public let axis: EffectDimension
     
-    public init(_ amount: CGFloat) {
+    /// Initialize a new StaggerEffect with the specified amount and axis
+    public init(_ amount: CGFloat, axis: EffectDimension = .yAxis) {
         if amount >= 1.0 {
             self.amount = 0.0
         } else if amount < 0.0 {
@@ -35,7 +35,7 @@ public struct StaggerEffect: Hashable {
         } else {
             self.amount = amount
         }
-        self.axis = .yAxis
+        self.axis = axis
     }
     
     public static var zero: StaggerEffect {
@@ -43,11 +43,8 @@ public struct StaggerEffect: Hashable {
     }
 }
 
-/// Determines which dimension to apply a tiling effect
+/// Determines which dimension to apply a tiling effect. Currently only y axis is supported.
 public enum EffectDimension: Int, Hashable {
-    /// effect is applied along the x axis in the layout coordinates
-    case xAxis
-    
     /// effect is applied along the y axis in the layout coordinates
     case yAxis
 }
