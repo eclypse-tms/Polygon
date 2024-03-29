@@ -2,7 +2,7 @@
 //  DemoData.swift
 //  Example-UIKit
 //
-//  Created by Nessa Kucuk, Turker on 3/14/24.
+//  Created by eclypse on 3/14/24.
 //
 
 import UIKit
@@ -12,6 +12,7 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
     case equilateralTriangle
     case hexagon
     case octagon
+    case rectangle
     var id: Self { self }
     
     var imageName: String {
@@ -24,6 +25,8 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
             return "hexagon"
         case .octagon:
             return "octagon"
+        case .rectangle:
+            return "rectangle"
         }
     }
     
@@ -37,6 +40,8 @@ enum TileablePolygonType: String, CaseIterable, Identifiable {
             return "Hexagon"
         case .octagon:
             return "Octagon"
+        case .rectangle:
+            return "Rectangle"
         }
     }
 }

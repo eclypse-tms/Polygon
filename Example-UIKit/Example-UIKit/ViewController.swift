@@ -170,6 +170,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction
+    private func didEnterNewSizeValue(_ sender: UITextField) {
+        switch sender {
+        case fixedWidthSizeText: //fixed width
+            let parsedFixedWidthSize = Int(fixedWidthSizeText.text ?? "64") ?? 64
+            tiledPolygon.polygonSize = TileablePolygonSize(fixedWidth: CGFloat(parsedFixedWidthSize))
+        default: // target size
+            let parsedTargetSize = Int(targetSizeText.text ?? "12") ?? 12
+            tiledPolygon.polygonSize = TileablePolygonSize(horizontalPolygonTarget: CGFloat(parsedTargetSize))
+        }
+    }
+    
+    @IBAction
     private func didSelectSingleOrMultiColor(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0: //single color selection
@@ -200,6 +212,10 @@ class ViewController: UIViewController {
             tiledPolygon.tileablePolygonKind = Hexagon()
             //hexagon cannot be staggered at the moment
             staggerControls.isHidden = true
+        case TileablePolygonType.rectangle.id.rawValue:
+            tiledPolygon.tileablePolygonKind = Quadgon(widthToHeightRatio: 0.5)
+            //hexagon cannot be staggered at the moment
+            staggerControls.isHidden = false
         default:
             break
         }

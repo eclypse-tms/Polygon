@@ -123,6 +123,15 @@ public extension Color {
             Color(hex: "8000FF")
         ]
     }
+    
+    /// rgb + purple for testing purposes
+    static var rgbpPalette: [Color] {
+        return [Color.red,
+                Color.green,
+                Color.blue,
+                Color.purple
+        ]
+    }
 }
 
 public extension Color {

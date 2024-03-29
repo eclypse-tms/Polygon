@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// TiledPolygon is a single view with a bunch of neatly tiled polygons in it.
-public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
+public struct TiledPolygon: View, TileablePolygonProtocol, DrawTileablePolygon {
     
     @usableFromInline 
     internal var _kind: any TileablePolygonKind = Square()
@@ -99,118 +99,15 @@ public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
         
     public var body: some View {
         Canvas { context, canvasSize in
-            // we need to figure out how many tiles would fit the given canvas size
-            // there are 2 ways to lay out the shapes in any given canvas
-            // a. we either have a fixed tile width and we use that to determine how many of those would fit
-            // b. we have a target number number that we want to fit in this canvas and we derive the size of the shape based on that
-            let numberOfTileableColumns: Int
-            let numberOfTileableRows: Int
-            let effectiveTileSize: CGSize
-            
-            if let validNumberOfHorizontalPolygons = _polygonSize.horizontalPolygonTarget {
-                let deducedSize = deduceMetricsFor(flexiblePolygonSize: _polygonSize,
-                                                   canvasSize: canvasSize,
-                                                   polygonKind: _kind,
-                                                   interTileSpacing: _interTileSpacing,
-                                                   targetNumberOfHorizontallyLaidPolygons: validNumberOfHorizontalPolygons)
-                numberOfTileableColumns = deducedSize.numberOfTileableColumns
-                numberOfTileableRows = deducedSize.numberOfTileableRows
-                effectiveTileSize = deducedSize.effectiveTileSize
-            } else {
-                let deducedSize = deduceMetricsFor(fixedPolygonSize: _polygonSize,
-                                                canvasSize: canvasSize,
-                                                polygonKind: _kind,
-                                                interTileSpacing: _interTileSpacing)
-                numberOfTileableColumns = deducedSize.numberOfTileableColumns
-                numberOfTileableRows = deducedSize.numberOfTileableRows
-                effectiveTileSize = deducedSize.effectiveTileSize
-            }
-            
-            // due to staggering effect, we might need to tile around the edges of the canvas
-            // for this reason the lower bound may start at -1
-            // and upper bounds end at numberOfTileableColumns + 1
-            let rowLowerBound = -1
-            let rowUpperBound = numberOfTileableRows + 1
-            let columnLowerBound = -1
-            let columnUpperBound = numberOfTileableColumns + 1
-            
-            var colorAssignment = -1
-            
-            //at this point we determined how many rows and columns we would need to tile
-            //now we need to iterate over the rows and columns
-            for tileX in columnLowerBound..<columnUpperBound {
-                //tileX and tileY follows the same X,Y coordinate pattern in a coordinate space.
-                //when tileX is zero, we are referring to the first columnns of shapes
-                //when tileY is zero, we are referring to the first row of shapes
-                //therefore, when tileX = 2
-                for tileY in rowLowerBound..<rowUpperBound {
-                    
-                    
-                    // calculate the layout metrics of each tile
-                    let layoutMetrics = performLayout(for: _kind,
-                                                      tileX: tileX,
-                                                      tileY: tileY,
-                                                      tileSize: effectiveTileSize,
-                                                      interTileSpacing: _interTileSpacing,
-                                                      staggerEffect: _staggerEffect)
-                    
-                    let boundingRect = CGRect(origin: CGPoint(x: layoutMetrics.tileXOffset, y: layoutMetrics.tileYOffset), size: effectiveTileSize)
-
-                    
-                    // because we always draw an extra polygon around the edges of the screen
-                    // there will be some instances, where that extra polygon is not needed
-                    // if those polygons are completely out of bounds, then we can skip drawing them
-                    let canvasRect = CGRect(origin: .zero, size: canvasSize)
-                    let isOutOfBounds = !canvasRect.intersects(boundingRect)
-                    if isOutOfBounds {
-                        // there is no intersection, let's bail
-                        continue
-                    } else {
-                        colorAssignment += 1
-                        
-                        // we need to calculate the middle point of our frame
-                        // we will use this center as an anchor to draw our polygon
-                        let centerPoint = CGPoint(x: boundingRect.midX, y: boundingRect.midY)
-                        
-                        // the polygon points will be located on a circle - hence the radius calculation
-                        // this radius calculation also takes into account the border width which gets
-                        // added on the outside of the shape
-                        let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _interTileSpacing / 2.0
-                        
-                        var totalRotation = _kind.initialRotation.radians
-                        switch _kind {
-                        case is EquilateralTriangle:
-                            if tileX.isOdd() {
-                                //we need to reverse the rotation 180 degrees when we are tiling odd columns for
-                                //triangles
-                                totalRotation += CGFloat.pi
-                            }
-                        default:
-                            // other shapes do not need additional rotation
-                            break
-                        }
-                        
-                        let initialPath = drawInitialPolygonPath(numberOfSides: _kind.numberOfSides,
-                                                                 centerPoint: centerPoint,
-                                                                 radius: radius,
-                                                                 rotationInRadians: totalRotation)
-                        
-                        let scaledPolygonPath = scale(originalPath: initialPath, rect: boundingRect, originalCenter: centerPoint, reCenter: true)
-                        
-                        // because we start tiling -1 column first, we need to adjust the loop counter
-                        // so that first visible polygon on the upper left corner is the first color in
-                        // our color palette
-                        if boundingRect.minY < 0 {
-                            colorAssignment -= 1
-                        }
-                        var colorMod = (colorAssignment % _fillColorPattern.count)
-                        if colorMod < 0 {
-                            colorMod = (_fillColorPattern.count + colorMod) % _fillColorPattern.count
-                        }
-                        context.fill(scaledPolygonPath, with: .color(_fillColorPattern[colorMod]))
-                    }
-                }
-            }
+            drawTilesWithParameters(canvasSize: canvasSize,
+                                    polygonSize: _polygonSize,
+                                    kind: _kind,
+                                    interTileSpacing: _interTileSpacing,
+                                    staggerEffect: _staggerEffect,
+                                    numberOfColorsInPalette: _fillColorPattern.count,
+                                    drawingInstructions: { (patternColorIndex, polygonPath) in
+                context.fill(polygonPath.path, with: .color(_fillColorPattern[patternColorIndex]))
+            })
         }
     }
 }
@@ -220,11 +117,11 @@ public struct TiledPolygon: View, TileablePolygonProtocol, PolygonBezierPath {
 
     // configure the polygon
     let tiledPolygon = TiledPolygon()
-        .kind(EquilateralTriangle())
-        .interTileSpacing(4)
+        .kind(Hexagon())
+        .interTileSpacing(1)
         .staggerEffect(StaggerEffect(0.0))
         .fillColorPattern(Color.viridisPalette)
-        .polygonSize(TileablePolygonSize(fixedWidth: 92))
+        .polygonSize(TileablePolygonSize(horizontalPolygonTarget: 21))
         .background(backgroundColor)
         .padding(0)
     

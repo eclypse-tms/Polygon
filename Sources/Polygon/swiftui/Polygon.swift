@@ -9,49 +9,86 @@ import SwiftUI
 
 /// Polygon allows you to add a polygon of any sides to your SwiftUI based views
 public struct Polygon: Shape {
+    
+    @usableFromInline
+    internal var _numberOfSides: Int = 4
+    
     /// number of equal sides
-    public var numberOfSides: Int = 4 {
-        didSet {
-            if numberOfSides < 3 {
-                numberOfSides = 3
-            } else if numberOfSides > 120 {
-                numberOfSides = 120
-            }
+    @inlinable public func numberOfSides(_ number: Int) -> Self {
+        var newCopy = self
+        if number < 3 {
+            newCopy._numberOfSides = 3
+        } else if number > 120 {
+            newCopy._numberOfSides = 120
+        } else {
+            newCopy._numberOfSides = number
         }
+        return newCopy
     }
     
-    /// the color to fill the polygon with
-    public var fillColor: Color = .blue
+    @usableFromInline
+    internal var _fillColor: Color = .blue
     
-    /// Rotation angle expressed in degrees (45°) or radians (π/4)
-    public var rotationAngle: Angle = .zero
+    /// the color to fill the polygon with
+    @inlinable public func fillColor(_ aColor: Color) -> Self {
+        var newCopy = self
+        newCopy._fillColor = aColor
+        return newCopy
+    }
+    
+    @usableFromInline
+    internal var _rotationAngle: Angle = .zero
+    
+    /// Rotation angle expressed in degrees (for ex: 45°) or radians (for ex: π/4)
+    @inlinable public func rotationAngle(_ angle: Angle) -> Self {
+        var newCopy = self
+        newCopy._rotationAngle = angle
+        return newCopy
+    }
+    
+
+    @usableFromInline
+    internal var _borderWidth: CGFloat = 1.0
     
     /// optional border width. specify zero to negate the border
-    public var borderWidth: CGFloat = 1.0
+    @inlinable public func borderWidth(_ aWidth: CGFloat) -> Self {
+        var newCopy = self
+        newCopy._borderWidth = aWidth
+        return newCopy
+    }
+    
+    
+    @usableFromInline
+    internal var _borderColor: Color = .black
     
     /// optional border color. only works when the border width is greater than 0
-    public var borderColor: Color = .black
+    @inlinable public func borderColor(_ aColor: Color) -> Self {
+        var newCopy = self
+        newCopy._borderColor = aColor
+        return newCopy
+    }
+    
+    @usableFromInline
+    internal var _showDashes: Bool = false
     
     /// whether to show dashes around the circle that the initial
     /// polygon is rendered before scaling and rotation. used in the
     /// accompanying blog for demonstration purposes.
-    public var showDashes: Bool = false
-        
-    public init(numberOfSides: Int = 4,
-                fillColor: Color = .blue,
-                rotationAngle: Angle = .zero,
-                borderWidth: CGFloat = 1.0,
-                borderColor: Color = .black,
-                showDashes: Bool = false) {
-        self.borderWidth = borderWidth
-        self.borderColor = borderColor
-        self.showDashes = showDashes
-        self.fillColor = fillColor
-        self.numberOfSides = numberOfSides
-        self.rotationAngle = rotationAngle
+    @inlinable public func showDashes(_ show: Bool) -> Self {
+        var newCopy = self
+        newCopy._showDashes = show
+        return newCopy
     }
     
-    public init() {}
+    public init(numberOfSides: Int) {
+        if numberOfSides < 3 {
+            self._numberOfSides = 3
+        } else if numberOfSides > 120 {
+            self._numberOfSides = 120
+        } else {
+            self._numberOfSides = numberOfSides
+        }
+    }
     
     public var body: some View {
         Canvas { context, size in
@@ -63,13 +100,13 @@ public struct Polygon: Shape {
             // the polygon points will be located on a circle - hence the radius calculation
             // this radius calculation also takes into account the border width which gets
             // added on the outside of the shape
-            let radius = min(boundingRect.width, boundingRect.height) / 2.0 - borderWidth / 2.0
+            let radius = min(boundingRect.width, boundingRect.height) / 2.0 - _borderWidth / 2.0
             
             drawDashes(rect: boundingRect, center: centerPoint, radius: radius, context: context)
             
             let scaledPolygonPath = path(in: boundingRect)
-            context.stroke(scaledPolygonPath, with: .color(borderColor), style: StrokeStyle(lineWidth: borderWidth))
-            context.fill(scaledPolygonPath, with: .color(fillColor))
+            context.stroke(scaledPolygonPath, with: .color(_borderColor), style: StrokeStyle(lineWidth: _borderWidth))
+            context.fill(scaledPolygonPath, with: .color(_fillColor))
         }
     }
     
@@ -81,7 +118,7 @@ public struct Polygon: Shape {
         // the polygon points will be located on a circle - hence the radius calculation
         // this radius calculation also takes into account the border width which gets
         // added on the outside of the shape
-        let radius = min(rect.width, rect.height) / 2.0 - borderWidth / 2.0
+        let radius = min(rect.width, rect.height) / 2.0 - _borderWidth / 2.0
         
         let initialPath = drawInitialPolygonPath(centerPoint: centerPoint, radius: radius)
         let scaledPolygonPath = scale(originalPath: initialPath, rect: rect, originalCenter: centerPoint, reCenter: true)
@@ -91,15 +128,15 @@ public struct Polygon: Shape {
     /// given a center point and radius, it creates a bezier path for an equilateral Polygon
     private func drawInitialPolygonPath(centerPoint: CGPoint, radius: CGFloat) -> Path {
         // this is the slice we have to traverse for each side of the polygon
-        let angleSliceFromCenter = 2 * .pi / CGFloat(numberOfSides)
+        let angleSliceFromCenter = 2 * .pi / CGFloat(_numberOfSides)
         
         
         // iterate over the sides of the polygon and collect each point on the circle
         // where the polygon corner should be
         var polygonPath = Path()
-        for i in 0..<numberOfSides {
+        for i in 0..<_numberOfSides {
             let currentAngleFromCenter = CGFloat(i) * angleSliceFromCenter
-            let rotatedAngleFromCenter = currentAngleFromCenter + rotationAngle.radians
+            let rotatedAngleFromCenter = currentAngleFromCenter + _rotationAngle.radians
             let x = centerPoint.x + radius * cos(rotatedAngleFromCenter)
             let y = centerPoint.y + radius * sin(rotatedAngleFromCenter)
             if i == 0 {
@@ -113,7 +150,7 @@ public struct Polygon: Shape {
     }
     
     private func drawDashes(rect: CGRect, center: CGPoint, radius: CGFloat, context: GraphicsContext) {
-        if showDashes {
+        if _showDashes {
             var dashedCirclePath = Path()
             dashedCirclePath.addArc(center: center, radius: radius, startAngle: Angle.zero, endAngle: Angle(degrees: 360), clockwise: true)
             context.stroke(dashedCirclePath, with: .color(.black), style: StrokeStyle(lineWidth: 1.5, dash: [4, 8], dashPhase: 0))
@@ -123,8 +160,8 @@ public struct Polygon: Shape {
     private func scale(originalPath: Path, rect: CGRect, originalCenter: CGPoint, reCenter: Bool) -> Path {
         // 1. calculate the scaling factor to touch all the edges
         let boundingRectOfRotatedPath = originalPath.boundingRect
-        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * borderWidth)
-        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height + 2 * borderWidth)
+        let scaleFactorX = rect.width / (boundingRectOfRotatedPath.width + 2 * _borderWidth)
+        let scaleFactorY = rect.height / (boundingRectOfRotatedPath.height + 2 * _borderWidth)
         let finalScaleFactor = min(scaleFactorX, scaleFactorY)
         
         if abs(finalScaleFactor - 1.0) < 0.001 {
@@ -154,16 +191,25 @@ public struct Polygon: Shape {
 #Preview {
     let lightGray = Color(white: 0.85)
     let hStack = HStack(spacing: 20, content: {
-      Polygon(numberOfSides: 3, 
-              fillColor: .blue,
-              rotationAngle: Angle(degrees: 30))
-        .background(lightGray)
-      Polygon(numberOfSides: 4, fillColor: .blue, rotationAngle: Angle(degrees: 45))
-        .background(lightGray)
-      Polygon(numberOfSides: 5, fillColor: .blue, rotationAngle: Angle(degrees: -18))
-        .background(lightGray)
-      Polygon(numberOfSides: 6, fillColor: .blue, rotationAngle: Angle(degrees: 0))
-        .background(lightGray)
+        Polygon(numberOfSides: 3)
+            .fillColor(.blue)
+            .rotationAngle(Angle(degrees: 30))
+            .background(lightGray)
+        
+        Polygon(numberOfSides: 4)
+            .fillColor(.blue)
+            .rotationAngle(Angle(degrees: 45))
+            .background(lightGray)
+        
+        Polygon(numberOfSides: 5)
+            .fillColor(.blue)
+            .rotationAngle(Angle(degrees: -18))
+            .background(lightGray)
+      
+        Polygon(numberOfSides: 6)
+            .fillColor(.blue)
+            .rotationAngle(Angle(degrees: 0))
+            .background(lightGray)
     })
     .frame(maxHeight: 360)
     .padding()

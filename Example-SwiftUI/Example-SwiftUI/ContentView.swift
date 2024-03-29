@@ -97,6 +97,8 @@ struct ContentView: View {
             polygonKind = Hexagon()
         case .octagon:
             polygonKind = Octagon()
+        case .rectangle:
+            polygonKind = Quadgon(widthToHeightRatio: 0.5)
         }
         
         var resultingTiledPolygon = TiledPolygon()
@@ -266,15 +268,19 @@ struct ContentView: View {
         let resultingStack = VStack(alignment: .center, spacing: 8) {
             Spacer()
             HStack {
-                Polygon(numberOfSides: 3, rotationAngle: Angle(degrees: 30))
+                Polygon(numberOfSides: 3)
+                    .rotationAngle(Angle(degrees: 30))
                     .background(tileBackground)
-                Polygon(numberOfSides: 4, rotationAngle: Angle(degrees: 45))
+                Polygon(numberOfSides: 4)
+                    .rotationAngle(Angle(degrees: 45))
                     .background(tileBackground)
-                Polygon(numberOfSides: 5, rotationAngle: Angle(degrees: -18))
+                Polygon(numberOfSides: 5)
+                    .rotationAngle(Angle(degrees: -18))
                     .background(tileBackground)
                 Polygon(numberOfSides: 6)
                     .background(tileBackground)
-                Polygon(numberOfSides: 7, rotationAngle: Angle(degrees: -90))
+                Polygon(numberOfSides: 7)
+                    .rotationAngle(Angle(degrees: -90))
                     .background(tileBackground)
                 Polygon(numberOfSides: 8)
                     .background(tileBackground)
