@@ -31,11 +31,11 @@ Draws an equilateral polygon of any side within any SwiftUI or UIView. Extremely
 
 ```
 var body: some View {
-  Polygon(numberOfSides: 5, // draws a pentagon
-          fillColor: .green, // the color to fill the polygon width
-          rotationAngle: Angle(degrees: 30), // rotate the shape in any angle
-          borderWidth: 2,
-          borderColor: .black)
+  Polygon(numberOfSides: 5) // draws a pentagon
+    .fillColor(.green) // polygon's foreground color
+    .rotationAngle(Angle(degrees: 30)) // rotate the shape 30 degrees
+    .borderWidth(2)
+    .borderColor(.black)
 }
 ```
 
@@ -103,6 +103,9 @@ Since we added support for SwiftUI, previously named `Polygon` class has been re
 
 ## Breaking Change with version 3
 Now all UIPolygons are animatable.
+
+## Breaking Change with version 4
+Single polygon instantiation signature change in SwiftUI
 
 <br/>
 
